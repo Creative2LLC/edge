@@ -8,6 +8,7 @@ import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
 import { createPaginationControls } from '../../scripts/pagination-controls.js';
 import { resolveDamAssetUrl } from '../../scripts/remote-picture.js';
+import { loadScript } from '../../scripts/aem.js';
 
 const DEFAULTS = {
   heading: 'Poster Results',
@@ -1450,6 +1451,248 @@ function buildParticipantSection(payload, {
   return section;
 }
 
+/* ---------------------------------------------------------------------------
+   Print flyer. "Print Poster" (and the browser's own Print) prints this one-page
+   flyer instead of the web page. It mirrors the legacy poster.print.html:
+   - up to two photos a person: the first photo, then the first age progression or,
+     failing that, the second photo (legacy picks the same two);
+   - companions and other related people under "Possible Associate(s)";
+   - a QR code back to the poster plus the 1-800-THE-LOST hotline;
+   - 4+ children in a grid so the whole case fits one page.
+   It is display:none on screen; the print stylesheet hides everything else. */
+const QR_SCRIPT_PATH = '/scripts/qrcode-generator.min.js';
+
+function printPhotoSources(person) {
+  const photos = photoSourcesForFields(person, ['photos']);
+  const [progression] = photoSourcesForFields(person, ['ageProgressionPhotos']);
+  const first = photos[0] || childPhotoSources(person)[0];
+  return [...new Set([first, progression || photos[1]].filter(Boolean))];
+}
+
+function createPrintPerson(person, unidentified, fallbackName) {
+  const card = document.createElement('div');
+  card.className = 'poster-results-print-person';
+
+  const photos = document.createElement('div');
+  photos.className = 'poster-results-print-photos';
+  printPhotoSources(person).forEach((src) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.addEventListener('error', () => img.remove());
+    photos.append(img);
+  });
+  if (photos.childElementCount) {
+    card.append(photos);
+  } else {
+    card.classList.add('is-no-photo');
+  }
+
+  const info = document.createElement('div');
+  info.className = 'poster-results-print-info';
+  const name = document.createElement('div');
+  name.className = 'poster-results-print-name';
+  name.textContent = displayName(person, fallbackName);
+  info.append(name);
+
+  const ncic = firstValue(person, ['ncicNumber', 'ncic']);
+  const namus = firstValue(person, ['namus', 'namUs', 'namusNumber', 'namUsNumber']);
+  if (ncic || namus) {
+    const ids = document.createElement('div');
+    ids.className = 'poster-results-print-ids';
+    ids.textContent = [ncic ? `NCIC# ${ncic}` : '', namus ? `NamUs# ${namus}` : '']
+      .filter(Boolean).join(', ');
+    info.append(ids);
+  }
+
+  appendFactRows(info, participantFacts(person, unidentified));
+  card.append(info);
+  return card;
+}
+
+// Children: 1 person = large photos beside the facts; 2-3 = one row each; 4 = a 2-across
+// grid; 5+ = 3-across. Associates get their own compact rows (is-associates). The class
+// is the only thing the print stylesheet keys off.
+function printLayoutClass(count) {
+  if (count <= 1) return 'is-single';
+  if (count <= 3) return 'is-rows';
+  return count === 4 ? 'is-grid-2' : 'is-grid-3';
+}
+
+function createPrintGroup(people, unidentified, fallbackName, layout) {
+  const group = document.createElement('div');
+  group.className = `poster-results-print-people ${layout}`;
+  people.forEach((person) => group.append(createPrintPerson(person, unidentified, fallbackName)));
+  return group;
+}
+
+function createQrSvg(text) {
+  const { qrcode } = window;
+  if (typeof qrcode !== 'function') return null;
+  const qr = qrcode(0, 'M');
+  qr.addData(text);
+  qr.make();
+
+  const count = qr.getModuleCount();
+  const quiet = 2;
+  let path = '';
+  for (let row = 0; row < count; row += 1) {
+    for (let col = 0; col < count; col += 1) {
+      if (qr.isDark(row, col)) path += `M${col + quiet} ${row + quiet}h1v1h-1z`;
+    }
+  }
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${count + quiet * 2} ${count + quiet * 2}`);
+  svg.setAttribute('shape-rendering', 'crispEdges');
+  svg.setAttribute('aria-hidden', 'true');
+  const shape = document.createElementNS(ns, 'path');
+  shape.setAttribute('d', path);
+  shape.setAttribute('fill', '#000');
+  svg.append(shape);
+  return svg;
+}
+
+// The QR library is only needed for printing, so it loads after the poster renders.
+// If it fails, the panel keeps its text (hotline, "scan" line drops with the code).
+async function attachPrintQr(slot, url) {
+  try {
+    await loadScript(`${window.hlx?.codeBasePath || ''}${QR_SCRIPT_PATH}`);
+    const svg = createQrSvg(url);
+    if (!svg) throw new Error('QR library unavailable');
+    slot.append(svg);
+  } catch (error) {
+    slot.closest('.poster-results-print-help')?.classList.add('is-no-qr');
+    slot.remove();
+  }
+}
+
+function printPosterUrl(payload, mainChild) {
+  const path = buildCleanPosterPath({
+    provider: normalizeText(
+      mainChild?.orgPrefix || payload?.organizationCode || payload?.orgPrefix,
+    ),
+    caseNumber: normalizeText(
+      mainChild?.caseNumber || payload?.caseNumber || payload?.case_number,
+    ),
+    sequenceNumber: '1',
+  });
+  return path ? new URL(path, window.location.origin).href : window.location.href;
+}
+
+function createPrintHelpPanel(url) {
+  const panel = document.createElement('div');
+  panel.className = 'poster-results-print-help';
+
+  const heading = document.createElement('div');
+  heading.className = 'poster-results-print-help-title';
+  heading.textContent = 'How you can help';
+
+  const qr = document.createElement('div');
+  qr.className = 'poster-results-print-qr';
+  attachPrintQr(qr, url);
+
+  const list = document.createElement('ul');
+  [['is-scan', 'Scan, view & share'], ['', 'Report a sighting: call 911 or 1-800-THE-LOST']]
+    .forEach(([className, text]) => {
+      const item = document.createElement('li');
+      if (className) item.className = className;
+      item.textContent = text;
+      list.append(item);
+    });
+
+  panel.append(heading, qr, list);
+  return panel;
+}
+
+function createPrintFlyer(payload, config, {
+  children, associates, unidentified, label,
+}) {
+  const mainChild = children[0] || {};
+  const flyer = document.createElement('div');
+  flyer.className = 'poster-results-print';
+  flyer.setAttribute('aria-hidden', 'true');
+
+  const title = document.createElement('div');
+  title.className = 'poster-results-print-title';
+  const titleText = document.createElement('span');
+  titleText.textContent = label;
+  title.append(document.createElement('span'), titleText, document.createElement('span'));
+
+  const main = document.createElement('div');
+  main.className = 'poster-results-print-main';
+  main.append(createPrintGroup(
+    children,
+    unidentified,
+    unidentified ? 'Unidentified Person' : 'Missing Child',
+    printLayoutClass(children.length),
+  ));
+
+  if (associates.length) {
+    const section = document.createElement('div');
+    section.className = 'poster-results-print-associates';
+    const heading = document.createElement('div');
+    heading.className = 'poster-results-print-associates-heading';
+    heading.textContent = associates.length > 1 ? 'Possible Associates' : 'Possible Associate';
+    section.append(heading, createPrintGroup(
+      associates,
+      false,
+      'Possible Associate',
+      associates.length > 1 ? 'is-associates is-two-up' : 'is-associates',
+    ));
+    main.append(section);
+  }
+
+  const narrative = posterNarrative(payload, mainChild);
+  if (narrative) {
+    const copy = document.createElement('div');
+    copy.className = 'poster-results-print-description';
+    copy.textContent = narrative;
+    main.append(copy);
+  }
+
+  const aside = document.createElement('div');
+  aside.className = 'poster-results-print-aside';
+  aside.append(createPrintHelpPanel(printPosterUrl(payload, mainChild)));
+
+  const agencies = agencyLines(payload, mainChild);
+  if (agencies.length) {
+    const contacts = document.createElement('div');
+    contacts.className = 'poster-results-print-contacts';
+    agencies.forEach(({ agency, phone }) => {
+      const line = document.createElement('div');
+      line.className = 'poster-results-print-contact';
+      line.textContent = agency || 'Law Enforcement Agency';
+      if (phone) {
+        const number = document.createElement('span');
+        number.className = 'poster-results-print-phone';
+        number.textContent = phone;
+        line.append(' ', number);
+      }
+      contacts.append(line);
+    });
+    aside.append(contacts);
+  }
+
+  aside.append(createOrganizationMark(config));
+  const caseNumber = normalizeText(
+    payload?.caseNumber || payload?.case_number || mainChild.caseNumber,
+  );
+  if (caseNumber) {
+    const caseLine = document.createElement('div');
+    caseLine.className = 'poster-results-print-case';
+    caseLine.textContent = `NCMEC: ${caseNumber}`;
+    aside.append(caseLine);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'poster-results-print-body';
+  body.append(main, aside);
+  flyer.append(title, body);
+  return flyer;
+}
+
 function renderPosterDetail(container, meta, payload, config, onBack) {
   container.replaceChildren();
   meta.textContent = '';
@@ -1548,7 +1791,19 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
     if (extraPhotos) detail.append(extraPhotos);
   }
   detail.append(createDetailFooter(config, payload, mainChild));
-  container.append(detail);
+
+  const flyer = createPrintFlyer(payload, config, {
+    children,
+    associates: uniqueItems(
+      [...companions, ...otherRelatedEntries.map((entry) => entry.person)],
+      (person) => personId(person)
+        || `${sequenceNumber(person)}:${normalizedPersonName(person)}`,
+    ),
+    unidentified: isUnidentifiedPoster(payload, mainChild),
+    label: posterTypeLabel(children, isUnidentifiedPoster(payload, mainChild)),
+  });
+  container.append(detail, flyer);
+  document.body.classList.add('poster-results-printable');
 }
 
 // Vehicle information is a peer section so AMBER posters follow the same

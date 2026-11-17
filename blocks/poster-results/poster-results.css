@@ -1667,6 +1667,277 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
   }
 }
 
+/* ==========================================================================
+   PRINT FLYER (createPrintFlyer in poster-results.js)
+   A poster prints as one page, like the legacy poster.print.html. On screen the
+   flyer is hidden; in print every element that is not the flyer, inside it, or
+   one of its ancestors is hidden (header, footer, cookie banner, buttons, the
+   web layout), and the ancestors are flattened so the flyer starts at the top
+   of the page. Sizes are physical (in/pt) because this only ever meets paper,
+   and widths are fractions so A4 (narrower than Letter) still fits.
+   Rules run from least to most specific (stylelint no-descending-specificity).
+   ========================================================================== */
+.poster-results-print {
+  display: none;
+}
+
+@page {
+  margin: 0.4in;
+}
+
+@media print {
+  body.poster-results-printable {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  body.poster-results-printable *:not(.poster-results-print, .poster-results-print *, :has(.poster-results-print)) {
+    display: none !important;
+  }
+
+  body.poster-results-printable :has(.poster-results-print) {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+
+  .poster-results-print {
+    display: block;
+    color: var(--ncmec-black);
+    font-family: var(--body-font-family);
+    font-size: 9pt;
+    line-height: 1.3;
+  }
+
+  .poster-results-print-title {
+    display: flex;
+    align-items: center;
+    gap: 0.15in;
+    margin: 0 0 0.14in;
+    color: var(--ncmec-red);
+    font-family: var(--heading-font-family);
+    font-size: 22pt;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .poster-results-print-title > span:first-child,
+  .poster-results-print-title > span:last-child {
+    flex: 1;
+    border-top: 4pt solid var(--ncmec-red);
+  }
+
+  .poster-results-print-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1.6in;
+    gap: 0.25in;
+    align-items: start;
+  }
+
+  /* --- people ---------------------------------------------------------- */
+  .poster-results-print-people {
+    display: grid;
+    gap: 0.14in;
+  }
+
+  .poster-results-print-person {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.14in;
+    align-items: start;
+    break-inside: avoid;
+  }
+
+  .poster-results-print-photos {
+    display: flex;
+    gap: 0.08in;
+  }
+
+  .poster-results-print-qr svg {
+    display: block;
+    width: 1.15in;
+    height: 1.15in;
+    margin: 0 auto;
+  }
+
+  .poster-results-print-photos img {
+    display: block;
+    width: 1.35in;
+    height: 1.69in;
+    object-fit: contain;
+    border: 0.75pt solid var(--ncmec-gray-light);
+    border-radius: 4pt;
+  }
+
+  .is-single .poster-results-print-photos img {
+    width: 2.2in;
+    height: 2.75in;
+  }
+
+  .is-associates .poster-results-print-photos img {
+    width: 0.9in;
+    height: 1.12in;
+  }
+
+  .poster-results-print .poster-results-detail-logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .is-associates.is-two-up,
+  .is-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.16in 0.18in;
+  }
+
+  .is-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.16in 0.18in;
+  }
+
+  :is(.is-grid-2, .is-grid-3) .poster-results-print-person {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.06in;
+  }
+
+  :is(.is-grid-2, .is-grid-3) .poster-results-print-photos img {
+    width: calc((100% - 0.08in) / 2);
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  :is(.is-grid-2, .is-grid-3) .poster-results-print-photos img:only-child {
+    width: 62%;
+  }
+
+  .poster-results-print-name {
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  :is(.is-grid-2, .is-grid-3, .is-associates) .poster-results-print-name {
+    font-size: 10pt;
+  }
+
+  .poster-results-print-ids {
+    margin: 0.02in 0 0.05in;
+    color: var(--ncmec-gray-dark);
+    font-size: 7.5pt;
+  }
+
+  .poster-results-print .poster-results-fact {
+    display: flex;
+    gap: 0.05in;
+    align-items: center;
+    margin: 0 0 0.03in;
+    font-size: 8.5pt;
+    line-height: 1.25;
+  }
+
+  .poster-results-print .poster-results-fact-icon,
+  .poster-results-print .poster-results-fact-icon svg {
+    flex: none;
+    width: 9pt;
+    height: 9pt;
+  }
+
+  /* --- associates + description ----------------------------------------- */
+  .poster-results-print-associates {
+    margin-top: 0.16in;
+    padding-top: 0.08in;
+    border-top: 1pt solid var(--ncmec-gray-medium);
+  }
+
+  .poster-results-print-associates-heading {
+    margin-bottom: 0.08in;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .poster-results-print-description {
+    margin-top: 0.14in;
+  }
+
+  /* --- right column: help panel, contacts, logo, case number ------------ */
+  .poster-results-print-aside {
+    display: grid;
+    gap: 0.14in;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .poster-results-print-help {
+    width: 100%;
+    padding: 0.1in 0.1in 0.08in;
+    border: 2pt solid var(--ncmec-black);
+    border-radius: 10pt;
+    break-inside: avoid;
+  }
+
+  .poster-results-print-help-title {
+    margin-bottom: 0.04in;
+    color: var(--ncmec-blue-dark);
+    font-size: 10pt;
+    font-weight: 700;
+  }
+
+  .poster-results-print-help ul {
+    margin: 0.05in 0 0;
+    padding: 0;
+    font-size: 7.5pt;
+    font-weight: 700;
+    line-height: 1.25;
+    list-style: none;
+  }
+
+  .poster-results-print-help li + li {
+    margin-top: 0.03in;
+  }
+
+  .poster-results-print-help.is-no-qr .is-scan {
+    display: none;
+  }
+
+  .poster-results-print-contacts {
+    display: grid;
+    gap: 0.06in;
+    font-size: 8pt;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .poster-results-print-phone {
+    white-space: nowrap;
+  }
+
+  .poster-results-print .poster-results-detail-logo {
+    width: 1in;
+  }
+
+  .poster-results-print-case {
+    font-size: 8pt;
+    font-weight: 700;
+  }
+}
+
 /* stylelint-disable no-descending-specificity -- AMBER poster overrides of shared poster media. */
 .poster-results-amber-poster .poster-results-detail-media.is-fallback-media {
   background: #302d2b;
