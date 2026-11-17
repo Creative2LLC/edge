@@ -1307,8 +1307,10 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     flex: 1 1 50%;
   }
 
+  /* Narrower red rules leave the title room; see the 480px block below. */
   .poster-results-missing-child-heading {
-    gap: 14px;
+    grid-template-columns: minmax(16px, 1fr) auto minmax(16px, 1fr);
+    gap: 10px;
     margin-bottom: 26px;
   }
 
@@ -1323,6 +1325,18 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
   .poster-results.is-poster-page .poster-results-detail-gallery {
     padding-left: 0;
+  }
+}
+
+/* At the h1 size (42px+) the poster title box is ~140-234px on phones, and the
+   global overflow-wrap: anywhere split "CHILDREN", "UNIDENTIFIED" and "COMPANION"
+   mid-word at 320-414px. The h2 token (34px) keeps every label whole down to 320px;
+   from ~500px the h1 size fits again. */
+@media (width <= 480px) {
+  .poster-results-missing-child-heading h1 {
+    font-size: var(--heading-2-size);
+    overflow-wrap: normal;
+    text-align: center;
   }
 }
 
