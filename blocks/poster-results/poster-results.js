@@ -474,9 +474,14 @@ function replaceWithCanonicalPosterUrl(directRequest) {
   const canonicalPath = canonicalPosterPath(directRequest);
   if (!canonicalPath || !window.history?.replaceState) return;
 
-  const personType = directRequest.personType === 'related' ? '?person_type=related' : '';
-  const canonicalUrl = `${canonicalPath}${personType}${window.location.hash}`;
-  if (`${window.location.pathname}${window.location.hash}` !== canonicalUrl || window.location.search) {
+  // `print=1` survives the rewrite so the print page can be reloaded or shared.
+  const query = new URLSearchParams();
+  if (directRequest.personType === 'related') query.set('person_type', 'related');
+  if (directRequest.printPage) query.set('print', '1');
+  const search = query.toString() ? `?${query}` : '';
+  const canonicalUrl = `${canonicalPath}${search}${window.location.hash}`;
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (currentUrl !== canonicalUrl) {
     window.history.replaceState(null, '', canonicalUrl);
   }
 }
@@ -1693,7 +1698,33 @@ function createPrintFlyer(payload, config, {
   return flyer;
 }
 
-function renderPosterDetail(container, meta, payload, config, onBack) {
+// The print page (?print=1) shows the flyer as a Letter sheet instead of the poster,
+// with a screen-only bar (Print, Back to poster) that never prints.
+function enterPrintPage(container, flyer, mainChild, backHref) {
+  document.body.classList.add('poster-results-print-page');
+  document.title = `Print Poster: ${displayName(mainChild, 'Missing Child')}`;
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'poster-results-print-toolbar';
+
+  const print = document.createElement('button');
+  print.type = 'button';
+  print.textContent = 'Print';
+  print.addEventListener('click', () => window.print());
+  applyButtonStyle(print, 'primary');
+
+  const back = document.createElement('a');
+  back.href = backHref;
+  back.textContent = 'Back to poster';
+  applyButtonStyle(back, 'secondary');
+
+  toolbar.append(print, back);
+  container.insertBefore(toolbar, flyer);
+}
+
+function renderPosterDetail(container, meta, payload, config, onBack, {
+  printPage = false, backHref = '',
+} = {}) {
   container.replaceChildren();
   meta.textContent = '';
 
@@ -1804,6 +1835,7 @@ function renderPosterDetail(container, meta, payload, config, onBack) {
   });
   container.append(detail, flyer);
   document.body.classList.add('poster-results-printable');
+  if (printPage) enterPrintPage(container, flyer, mainChild, backHref || window.location.pathname);
 }
 
 // Vehicle information is a peer section so AMBER posters follow the same
@@ -2077,6 +2109,9 @@ function directPosterRequest() {
   const personType = normalizeText(params.get('person_type')).toLowerCase() === 'related'
     ? 'related'
     : '';
+  // ?print=1 is the print page: the one-page flyer shown on its own, like the legacy
+  // poster.print.html (scripts/error-pages.js maps /poster.print.html/... here too).
+  const printPage = ['1', 'true', 'yes'].includes(normalizeText(params.get('print')).toLowerCase());
   const poster = normalizeText(params.get('poster'));
   if (poster) {
     const [rawProvider, caseNumber, num = '1'] = poster.split('/').map(normalizeText);
@@ -2096,6 +2131,7 @@ function directPosterRequest() {
         caseNumber,
         num,
         personType,
+        printPage,
       };
     }
   }
@@ -2369,6 +2405,9 @@ export default async function decorate(block) {
 
   const directRequest = directPosterRequest();
   if (directRequest) {
+    // Read before replaceWithCanonicalPosterUrl swaps the address for /poster/...:
+    // the print page's "Back to poster" points at the page this block lives on.
+    const posterPagePath = currentPosterPagePath();
     const existingDirectPoster = document.querySelector('.poster-results.is-poster-page');
     if (existingDirectPoster && existingDirectPoster !== block) {
       block.hidden = true;
@@ -2437,7 +2476,15 @@ export default async function decorate(block) {
       const renderPayload = posterPayloadForRender(payload, directRequest);
       setStatus(status, '', '');
       replaceWithCanonicalPosterUrl(directRequest);
-      renderPosterDetail(results, meta, renderPayload, config, () => window.history.back());
+      renderPosterDetail(results, meta, renderPayload, config, () => window.history.back(), {
+        printPage: directRequest.printPage,
+        backHref: buildPosterDetailHref({
+          provider: directRequest.provider,
+          caseNumber: directRequest.caseNumber,
+          sequenceNumber: directRequest.num,
+          posterPagePath,
+        }),
+      });
       return;
     } catch (error) {
       clearSkeleton(results);

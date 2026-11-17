@@ -97,9 +97,13 @@ function getRequestedPath() {
   return combined;
 }
 
+// The legacy site's print view lives at /poster.print.html/ORG/CASE/SEQ; it maps to
+// the poster page's print view (?print=1).
+const POSTER_SEGMENTS = ['poster', 'poster.print.html'];
+
 function posterPathIndex(segments) {
-  if (segments[0] === 'poster') return 0;
-  if (segments[0]?.length === 2 && segments[1] === 'poster') return 1;
+  if (POSTER_SEGMENTS.includes(segments[0])) return 0;
+  if (segments[0]?.length === 2 && POSTER_SEGMENTS.includes(segments[1])) return 1;
   return -1;
 }
 
@@ -123,6 +127,7 @@ function legacyPosterRequestFromPath(pathname = window.location.pathname) {
     provider,
     caseNumber,
     sequenceNumber: /^\d+$/.test(sequenceOrLayout) ? sequenceOrLayout : '1',
+    print: segments[posterIndex] === 'poster.print.html',
   };
 }
 
@@ -148,6 +153,7 @@ function redirectLegacyPosterRequest() {
     target.searchParams.set('seq', poster.sequenceNumber);
   } else {
     target.searchParams.set('poster', `${poster.provider}/${poster.caseNumber}/${poster.sequenceNumber}`);
+    if (poster.print) target.searchParams.set('print', '1');
   }
 
   window.location.replace(`${target.pathname}${target.search}${window.location.hash}`);
