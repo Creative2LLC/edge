@@ -147,6 +147,45 @@ main > .section > .resources-wrapper {
   object-fit: contain;
 }
 
+/* Editor only (resources.js buildEmptyMediaSlot): an empty Image or Icon field
+   shows as a dashed slot the canvas can target, at the size it will fill. */
+.resources .is-empty-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--ncmec-gray-light);
+  background: var(--ncmec-gray-lightest);
+}
+
+.resources .resources-card-icon.is-empty-slot {
+  border-radius: 6px;
+}
+
+.resources .is-empty-slot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.resources .resources-card-image.is-empty-slot::after {
+  content: attr(data-slot-label);
+  color: var(--ncmec-gray-dark);
+  font-size: var(--caption-size);
+}
+
+/* A coloured icon is drawn as a mask; its bound <img> stays, invisible, so the
+   icon can still be selected in the editor. */
+.resources .resources-card-icon:has(.resources-card-icon-binding) {
+  position: relative;
+}
+
+.resources .resources-card-icon-binding {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
 /* Cards without an icon show the thumbnail exactly as cards with one do: the
    full picture panel above. The old 183px box shrank it and pinned it left
    (client, 2026-11-06 notes). */
@@ -184,14 +223,12 @@ main > .section > .resources-wrapper {
   margin: 0 0 8px;
 }
 
-/* Card description: the listing-card description (18px, medium), same as the
-   blog and resource browsers and the related blocks. */
+/* Card subheading */
 .resources .resources-card-subheading {
-  font-size: var(--body-size);
   font-weight: var(--body-weight-medium);
-  line-height: var(--body-line-height);
   color: var(--ncmec-gray-dark);
   margin: 0 0 20px;
+  line-height: 1.15;
 }
 
 .resources .resources-card-title p,

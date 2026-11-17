@@ -256,6 +256,12 @@ main.error > .section > div {
   font-size: clamp(8rem, 26vw, 18rem);
   font-weight: 800;
   line-height: 0.9;
+
+  /* The giant code is meant to overflow its panel, never break. styles.css gives
+     body overflow-wrap: break-word (2026-10-28, for long words in cards), which
+     every element inherits, and that split "404" into "40" / "4". */
+  overflow-wrap: normal;
+  white-space: nowrap;
 }
 
 .error-page-code {

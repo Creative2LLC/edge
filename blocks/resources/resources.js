@@ -485,6 +485,24 @@ function applyRichText(element, source, html, text) {
   element.textContent = text;
 }
 
+const EMPTY_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+
+// Editor only: an empty image field the canvas can target. The transparent image
+// carries the field binding; CSS draws the dashed "add" outline around it.
+function buildEmptyMediaSlot(className, prop, label) {
+  const wrap = document.createElement('div');
+  wrap.className = `${className} is-empty-slot`;
+  wrap.dataset.slotLabel = `Add ${label.toLowerCase()}`;
+  const img = document.createElement('img');
+  img.src = EMPTY_PIXEL;
+  img.alt = '';
+  img.dataset.aueProp = prop;
+  img.dataset.aueType = 'media';
+  img.dataset.aueLabel = label;
+  wrap.append(img);
+  return wrap;
+}
+
 function buildResourceCard(resource, row) {
   const labels = resourceActionLabels();
   const card = document.createElement('div');
@@ -498,6 +516,7 @@ function buildResourceCard(resource, row) {
   const hasImage = resource.imagePicture || resource.imgSrc;
   if (hasImage && !hasIcon) card.classList.add('resources-card-no-icon');
   if (!hasImage && !hasIcon) card.classList.add('resources-card-no-media');
+  const inEditor = card.hasAttribute('data-aue-resource');
 
   if (resource.imagePicture) {
     const imageWrap = document.createElement('div');
@@ -522,6 +541,11 @@ function buildResourceCard(resource, row) {
       imageWrap.append(picture);
       card.append(imageWrap);
     }
+  } else if (inEditor) {
+    // The editor renders an empty Image field as a bare cell with no field binding,
+    // so the icon was the card's only drop target and any picture dropped on a card
+    // went to Icon. An empty, bound slot lets the Image field be filled on the canvas.
+    card.append(buildEmptyMediaSlot('resources-card-image', 'image', 'Image'));
   }
 
   const content = document.createElement('div');
@@ -538,6 +562,12 @@ function buildResourceCard(resource, row) {
         iconWrap.style.webkitMaskImage = `url(${src})`;
         iconWrap.style.backgroundColor = resource.iconColor;
       }
+      // The coloured icon is a mask, so the bound <img> was dropped and the icon
+      // could not be selected on the canvas. Keep it, invisible, in the editor.
+      if (inEditor && resource.iconPicture) {
+        resource.iconPicture.classList.add('resources-card-icon-binding');
+        iconWrap.append(resource.iconPicture);
+      }
     } else if (resource.iconPicture) {
       iconWrap.append(resource.iconPicture);
     } else {
@@ -548,6 +578,8 @@ function buildResourceCard(resource, row) {
       iconWrap.append(iconImg);
     }
     content.append(iconWrap);
+  } else if (inEditor) {
+    content.append(buildEmptyMediaSlot('resources-card-icon', 'icon', 'Icon'));
   }
 
   if (resource.tags?.length) {
@@ -559,8 +591,7 @@ function buildResourceCard(resource, row) {
 
   if (resource.title) {
     const titleEl = document.createElement('h3');
-    // Shared listing-card title size (24px), same as the browsers and related blocks.
-    titleEl.className = 'resources-card-title u-card-title';
+    titleEl.className = 'resources-card-title';
     applyRichText(titleEl, resource.titleSource, resource.titleHtml, resource.title);
     content.append(titleEl);
   }
