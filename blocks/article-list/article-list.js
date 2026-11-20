@@ -29,6 +29,26 @@ const ARTICLE_SORTS = [
   { value: 'title_desc', label: 'Z-A' },
 ];
 
+// "Browse by area" is this fixed list (client, 2026-11-20), in this order, whether or not
+// any blog carries an area yet. The values are the backend's primary_area slugs
+// (BlogTaxonomyService), which the API filters on as areas[]. An area no blog carries
+// yet simply shows no results.
+const BLOG_AREAS = [
+  { value: 'news', label: 'News' },
+  { value: 'missing', label: 'Missing' },
+  { value: 'exploited', label: 'Exploited' },
+  { value: 'prevention', label: 'Prevention' },
+  { value: 'partners', label: 'Partners' },
+  { value: 'child-sex-trafficking', label: 'Child Sex Trafficking' },
+  { value: 'unidentified', label: 'Unidentified' },
+  { value: 'recovery-and-support', label: 'Recovery and Support' },
+];
+
+// The Refine row (Topic, Story type, Program or series) is off (client, 2026-11-20). Its
+// code stays: links that arrive with one of those filters still apply it and show a chip
+// that clears it. Set to true to bring the row back.
+const SHOW_REFINE = false;
+
 function normalizeArticleSort(value, fallback = DEFAULT_LIST_SORT) {
   const sort = normalizeListSort(value, fallback);
   return ARTICLE_SORTS.some((option) => option.value === sort) ? sort : DEFAULT_LIST_SORT;
@@ -546,7 +566,7 @@ function buildShell(config) {
   sortLabel.textContent = 'Sort';
   sortWrap.append(sortLabel, sortSelect);
   refineGroup.append(refineLabel, filterRow);
-  controls.append(refineGroup);
+  if (SHOW_REFINE) controls.append(refineGroup);
   searchRow.append(searchWrap, sortWrap, viewToggle);
   controls.append(searchRow);
   header.append(controls);
@@ -748,8 +768,9 @@ function renderApiList(block, config) {
     setFilterOptions(issueSelect, 'Topic', issues);
     setFilterOptions(typeSelect, 'Story type', types);
     setFilterOptions(tagSelect, 'Program or series', programs);
+    // The API's labels still name any other area a link brings in (e.g. an older hero tag).
     optionLabels.audience = new Map(
-      audiences.map((option) => [normalizeToken(option.value), option.label]),
+      [...audiences, ...BLOG_AREAS].map((option) => [normalizeToken(option.value), option.label]),
     );
     optionLabels.issue = new Map(
       issues.map((option) => [normalizeToken(option.value), option.label]),
@@ -764,7 +785,7 @@ function renderApiList(block, config) {
       (filters.tags || []).map((option) => [normalizeToken(option.slug), option.name]),
     );
     areaPills.replaceChildren();
-    const allAreas = [{ value: '', label: 'All articles' }, ...audiences];
+    const allAreas = [{ value: '', label: 'All articles' }, ...BLOG_AREAS];
     allAreas.forEach((option) => {
       const button = document.createElement('button');
       button.type = 'button';

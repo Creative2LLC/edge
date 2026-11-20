@@ -1309,6 +1309,80 @@
     ]
   },
   {
+    "id": "article-hero-panel",
+    "fields": [
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "panelStyle",
+        "label": "Panel Style",
+        "description": "The navy panel from the page Hero, shown to the right of the blog title (under it on phones). One style for now. Leave this as it is: it is how the published page finds the panel.",
+        "options": [
+          {
+            "name": "Navy (site standard)",
+            "value": "hero-side-panel"
+          }
+        ],
+        "value": "hero-side-panel"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "panelTitle",
+        "label": "Side Panel Title"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "panelText",
+        "label": "Side Panel Text",
+        "description": "The first paragraph shows larger and bold, as on the page Hero."
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "panelPrimaryText",
+        "label": "Primary Button Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "panelPrimaryLink",
+        "label": "Primary Button Link"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "panelSecondaryText",
+        "label": "Secondary Link Text"
+      },
+      {
+        "component": "aem-content",
+        "name": "panelSecondaryLink",
+        "label": "Secondary Link"
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "panelFooterText",
+        "label": "Side Panel Footer Text"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "panelImage",
+        "label": "Side Panel Image (Optional)",
+        "description": "When this is the only panel content, the panel shows just the image.",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "panelImageAlt",
+        "label": "Side Panel Image Alt"
+      }
+    ]
+  },
+  {
     "id": "article-list",
     "fields": [
       {

@@ -137,6 +137,7 @@
  "blocks/poster-results/poster-results.css|.poster-results:not(.is-poster-page) .poster-results-eyebrow|font-weight|900",
  "blocks/poster-results/poster-results.css|.poster-results:not(.is-poster-page) .poster-results-eyebrow|letter-spacing|0.02em",
  "blocks/poster-results/poster-results.css|.poster-results:not(.is-poster-page) .poster-results-eyebrow|line-height|1.1",
+ "blocks/related-articles/related-articles.css|.related-articles .related-articles-card-date|font-weight|800",
  "blocks/report-archive/report-archive.css|.report-archive .report-archive-trigger-text|line-height|1.15",
  "blocks/report-breakdown/report-breakdown.css|.report-breakdown .report-breakdown-total-label|font-size|clamp(1.35rem, 2vw, 1.8rem)",
  "blocks/report-breakdown/report-breakdown.css|.report-breakdown .report-breakdown-total-label|line-height|1.1",

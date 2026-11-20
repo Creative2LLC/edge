@@ -1366,6 +1366,22 @@
           }
         },
         {
+          "title": "Blog Hero Side Panel",
+          "id": "article-hero-panel",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "Hero Side Panel",
+                  "model": "article-hero-panel",
+                  "panelStyle": "hero-side-panel"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "News",
           "id": "news",
           "plugins": {

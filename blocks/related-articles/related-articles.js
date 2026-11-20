@@ -8,6 +8,10 @@ import {
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 import { showSkeleton } from '../../scripts/skeleton.js';
 import { resolveDamAssetUrl } from '../../scripts/remote-picture.js';
+import { observeCardTextBudget } from '../../scripts/card-text-budget.js';
+
+// Tags a card can carry before the one-line fit (keepPillsOnOneLine) hides the rest.
+const MAX_CARD_TAGS = 8;
 
 // This block used to carry its own copy of the DAM-to-publish rewrite, and
 // applied it to the download URL but never to the card thumbnail — so every
@@ -259,8 +263,61 @@ function buildTaxonomy(item) {
 
   const wrap = document.createElement('div');
   wrap.className = 'related-articles-taxonomy';
-  values.slice(0, 3).forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
+  values.slice(0, MAX_CARD_TAGS).forEach((value) => wrap.append(buildPill(value, 'is-taxonomy')));
   return wrap;
+}
+
+/**
+ * Keeps one card's tag pills on a single line. Pills that would wrap are hidden
+ * from the end and a "+N more" pill takes their place, naming them on hover and
+ * for screen readers. Measured with wrapping on, then `is-fitted` turns it off,
+ * so a first pill too long to share the line with "+N more" shrinks to an
+ * ellipsis (CSS) instead of pushing it onto a second line.
+ */
+function fitPillRow(row) {
+  const pills = [...row.querySelectorAll('.related-articles-pill.is-taxonomy')];
+  row.classList.remove('is-fitted');
+  row.querySelector('.related-articles-pill.is-more')?.remove();
+  pills.forEach((pill) => { pill.hidden = false; });
+  if (pills.length > 1) {
+    const top = pills[0].offsetTop;
+    const wraps = (element) => element.offsetTop > top;
+    if (pills.some(wraps)) {
+      const more = buildPill('', 'is-more');
+      row.append(more);
+      let hidden = 0;
+      for (let i = pills.length - 1; i > 0; i -= 1) {
+        pills[i].hidden = true;
+        hidden += 1;
+        more.textContent = `+${hidden} more`;
+        if (!wraps(more) && !pills.some((pill) => !pill.hidden && wraps(pill))) break;
+      }
+      const names = pills.filter((pill) => pill.hidden).map((pill) => pill.textContent);
+      more.title = names.join(', ');
+      more.setAttribute('aria-label', `${hidden} more ${hidden === 1 ? 'tag' : 'tags'}: ${names.join(', ')}`);
+    }
+  }
+  row.classList.add('is-fitted');
+}
+
+/** Fits every card's pills now, and again when a card's width or the fonts change. */
+function keepPillsOnOneLine(container) {
+  const rows = [...container.querySelectorAll('.related-articles-taxonomy')];
+  if (!rows.length) return;
+  rows.forEach(fitPillRow);
+  // Pill widths change when the web font replaces the fallback, not the row's.
+  document.fonts?.ready?.then(() => rows.forEach(fitPillRow));
+  if (!('ResizeObserver' in window)) return;
+  const widths = new WeakMap();
+  const observer = new ResizeObserver((entries) => {
+    entries.forEach(({ target, contentRect }) => {
+      // Height changes are the fit itself; only a new width needs a re-fit.
+      if (widths.get(target) === contentRect.width) return;
+      widths.set(target, contentRect.width);
+      fitPillRow(target);
+    });
+  });
+  rows.forEach((row) => observer.observe(row));
 }
 
 function buildItemHref(item, config) {
@@ -479,6 +536,16 @@ export default async function decorate(block) {
     }
 
     block.replaceChildren(buildView(related, config));
+    // Same 5-line title + excerpt budget as the blog browser cards. The API
+    // cuts most excerpts short with "...", but a hand-written one arrives whole,
+    // so the card has to end it itself.
+    observeCardTextBudget(block, {
+      card: '.related-articles-card',
+      title: '.related-articles-card-title',
+      text: '.related-articles-card-excerpt',
+      property: '--ra-excerpt-lines',
+    });
+    keepPillsOnOneLine(block);
   } catch (error) {
     block.replaceChildren(buildMessage('Related articles unavailable', error?.message || 'The related article API request failed.'));
   }

@@ -64,10 +64,13 @@
   gap: 1rem;
 }
 
+/* Title and intro take 70% of the hero column (at least 820px, never more than
+   the column), the same measure as the resource hero. With a side panel the
+   column is narrower than 820px, so they simply fill it. */
 .article-details .article-details-title {
   margin: 0;
   color: #16324a;
-  max-width: 14ch;
+  max-width: max(70%, 820px);
 }
 
 .article-details .article-details-meta {
@@ -86,9 +89,10 @@
   color: #9aa9b5;
 }
 
-/* The blog's own tags, injected into the hero once the API answers — they are
-   decoration here, not filters (the blog listing has no deep-linked tag
-   parameter to send them to), so plain spans and no interactive affordance. */
+/* The blog's own tags, injected into the hero once the API answers; each links
+   to the blog listing filtered by it. The same pill as the Related Blogs cards.
+   On a card it sits on white; here it sits on the pale hero wash, where Blue
+   Tint alone barely shows, so a Blue Light edge gives it its pill shape. */
 .article-details .article-details-tags {
   display: flex;
   flex-wrap: wrap;
@@ -100,6 +104,7 @@
   align-items: center;
   min-height: 1.9rem;
   padding: 0.3rem 0.7rem;
+  border: 1px solid var(--ncmec-blue-light);
   border-radius: 999px;
   background: var(--ncmec-blue-tint);
   color: var(--ncmec-blue-dark);
@@ -143,9 +148,10 @@
 .article-details .article-details-excerpt {
   margin: 0;
   color: #516272;
-  max-width: 58rem;
+  max-width: max(70%, 820px);
   line-height: 1.75;
 }
+
 
 /* ====================================================================
    AUTHORED HERO OPTIONS
@@ -176,11 +182,6 @@
 .article-details .article-details-hero.is-content-center .article-details-hero-content {
   text-align: center;
   justify-items: center;
-}
-
-.article-details .article-details-hero.is-content-center .article-details-title,
-.article-details .article-details-hero.is-content-right .article-details-title {
-  max-width: 24ch;
 }
 
 .article-details .article-details-hero.is-content-center .article-details-meta,
@@ -367,5 +368,127 @@
     margin-top: -42px;
     padding: 1.5rem 1rem;
     border-radius: 20px;
+  }
+
+  /* The card above rides 42px up into the hero, which suits text on the wash
+     but would butt a solid panel against it. */
+  .article-details .article-details-hero-content.has-side-panel {
+    padding-bottom: 2rem;
+  }
+}
+
+/* ====================================================================
+   HERO SIDE PANEL (optional "Blog Hero Side Panel" item)
+
+   The navy panel from the page Hero (blocks/hero), with the same values.
+   Only present when an author added the item, so a blog without one
+   renders exactly as before.
+   ==================================================================== */
+.article-details .article-details-hero-content.has-side-panel {
+  gap: 2rem;
+  align-items: end;
+}
+
+.article-details .article-details-hero-main {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  justify-items: inherit;
+}
+
+.article-details .article-details-side-panel {
+  width: 100%;
+  border-radius: 10px;
+  padding: 28px 26px;
+
+  /* Navy Dark, the palette colour nearest the page Hero panel's #002a5a. */
+  background: var(--ncmec-navy-dark);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 14%);
+  color: #fff;
+  text-align: left;
+}
+
+.article-details .article-details-side-panel.is-image-only {
+  padding: 18px;
+}
+
+.article-details .article-details-side-panel-image {
+  overflow: hidden;
+  margin-bottom: 18px;
+  border-radius: 6px;
+}
+
+.article-details .article-details-side-panel.is-image-only .article-details-side-panel-image {
+  margin-bottom: 0;
+}
+
+.article-details .article-details-side-panel-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  object-fit: contain;
+}
+
+.article-details .article-details-side-panel-title {
+  margin: 0;
+  color: #fff;
+}
+
+/* The panel's rich text sets its type on the container and the paragraphs
+   inherit it. Child selectors are `>` + universal rather than `p`, so they
+   never compete with the article body's `p` rules above. */
+.article-details .article-details-side-panel-text,
+.article-details .article-details-side-panel-footer {
+  margin-top: 14px;
+  color: rgb(255 255 255 / 92%);
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
+}
+
+.article-details .article-details-side-panel-footer {
+  margin-top: 18px;
+  color: rgb(255 255 255 / 78%);
+  font-size: var(--caption-size);
+}
+
+.article-details .article-details-side-panel-text > *,
+.article-details .article-details-side-panel-footer > * {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.article-details .article-details-side-panel-text > * + * {
+  margin-top: 0.6em;
+}
+
+/* As on the page Hero: the first paragraph is the panel's lead line. */
+.article-details .article-details-side-panel-text > :first-child {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-bold);
+}
+
+/* Blue Light on Navy Dark is about 9:1. */
+.article-details .article-details-side-panel-footer a {
+  color: var(--ncmec-blue-light);
+}
+
+.article-details .article-details-side-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+/* Side by side from 900px, as on the page Hero; stacked under the title below. */
+@media (width >= 900px) {
+  .article-details .article-details-hero-content.has-side-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 460px);
+    column-gap: 56px;
   }
 }

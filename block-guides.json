@@ -32,7 +32,7 @@
     }
   },
   "article-details": {
-    "looks": "A blog article's header (title, author, date, header image under an optional overlay) and its body of text and image items.",
+    "looks": "A blog article's header (title, author, date, tags, header image under an optional overlay, and an optional navy side panel to the right of the title) and its body of text and image items.",
     "use": "Only on blog pages, which the backend generates.",
     "on_request": true,
     "fields": {
@@ -40,6 +40,17 @@
       "authorName": "Optional byline.",
       "headerImage": "The header image; the blog's thumbnail elsewhere on the site comes from it.",
       "heroContentPosition": "left (default), center or right for the title over the header image."
+    }
+  },
+  "article-hero-panel": {
+    "use": "Optional, one per blog: a call to action beside the blog title, like the page Hero's side panel.",
+    "fields": {
+      "panelStyle": "Always hero-side-panel; never change it.",
+      "panelTitle": "Short panel heading, e.g. 'Need help now?'.",
+      "panelText": "One or two short paragraphs; the first shows larger and bold.",
+      "panelPrimaryText": "Words on the main button, with panelPrimaryLink.",
+      "panelSecondaryText": "Optional text link under the button, with panelSecondaryLink.",
+      "panelFooterText": "Optional small print at the bottom."
     }
   },
   "article-list": {

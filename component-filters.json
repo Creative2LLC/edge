@@ -187,7 +187,8 @@
     "id": "article-details",
     "components": [
       "article-body-text",
-      "article-body-image"
+      "article-body-image",
+      "article-hero-panel"
     ]
   },
   {

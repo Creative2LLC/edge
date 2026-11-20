@@ -3,6 +3,7 @@ import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { buildListFilterHref } from '../../scripts/list-filter-state.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { applyButtonStyle, markButtonSurface } from '../../scripts/button-utils.js';
 import {
   getBlockRows,
   readImageField,
@@ -915,6 +916,147 @@ function applyHeroOptions(section, fields) {
   }
 }
 
+/* ---- Hero side panel ("Blog Hero Side Panel" item) ------------------------
+   The navy panel from the page Hero, optional, to the right of the title.
+
+   It is a child ITEM of this block, not more block fields. New block fields
+   would land between the hero options and the body items on a published page,
+   where free text cannot be told from body copy, and the 397 published blogs
+   have body text in exactly those rows. An item row is found by its first cell
+   instead: `panelStyle` is a one-option select whose value the definition's
+   template writes when the item is added, so it is always there. Published item
+   rows drop trailing empty cells, so the cells are read by index from the front.
+   Field names avoid `prefix_` grouping (it would merge them into one cell) and
+   the backend's body keys (text, image, url, path...), so neither the page
+   parser nor ArticleAemSyncService ever reads the panel as body copy. */
+const HERO_PANEL_MODEL = 'article-hero-panel';
+const HERO_PANEL_MARKER = 'hero-side-panel';
+const HERO_PANEL_CELL = {
+  panelTitle: 1,
+  panelText: 2,
+  panelPrimaryText: 3,
+  panelPrimaryLink: 4,
+  panelSecondaryText: 5,
+  panelSecondaryLink: 6,
+  panelFooterText: 7,
+  panelImage: 8,
+};
+
+/**
+ * Takes the side panel item out of the block before anything reads its rows,
+ * so the body parser and the published row layout never see it.
+ */
+function takeHeroPanelRow(block) {
+  const row = block.querySelector(`[data-aue-model="${HERO_PANEL_MODEL}"]`)
+    || [...block.children].find((candidate) => (
+      normalizeText(candidate.children[0]?.textContent).toLowerCase() === HERO_PANEL_MARKER
+    ));
+  row?.remove();
+  return row || null;
+}
+
+/** Copies an authored field into a new element, keeping its editor binding. */
+function panelElement(tagName, className, field, html = false) {
+  const value = html ? field.html : field.value;
+  if (!value) return null;
+  const element = document.createElement(tagName);
+  element.className = className;
+  if (html) element.innerHTML = value;
+  else element.textContent = value;
+  if (field.source) moveInstrumentation(field.source, element);
+  return element;
+}
+
+function panelLink(textField, linkField, className, style) {
+  const href = normalizeText(linkField.value);
+  const label = normalizeText(textField.value);
+  if (!href && !label) return null;
+  const link = document.createElement('a');
+  link.className = className;
+  link.href = href ? resolveSiteHref(href) : '#';
+  link.textContent = label || 'Learn More';
+  applyButtonStyle(link, style);
+  if (textField.source) moveInstrumentation(textField.source, link);
+  else if (linkField.source) moveInstrumentation(linkField.source, link);
+  return link;
+}
+
+function buildHeroPanel(row) {
+  if (!row) return null;
+  // In the editor every field binds by name; positions are a published-page
+  // fallback only, and would read the wrong field for an empty one.
+  const inEditor = hasAuthoringContext(row);
+  const cells = [...row.children];
+  const at = (name) => (inEditor ? {} : { fallbackCell: cells[HERO_PANEL_CELL[name]] });
+
+  const title = readTextField(row, 'panelTitle', at('panelTitle'));
+  const text = readRichTextField(row, 'panelText', at('panelText'));
+  const footer = readRichTextField(row, 'panelFooterText', at('panelFooterText'));
+  const image = readImageField(row, 'panelImage', at('panelImage'));
+  const primary = panelLink(
+    readTextField(row, 'panelPrimaryText', at('panelPrimaryText')),
+    readLinkField(row, 'panelPrimaryLink', at('panelPrimaryLink')),
+    'article-details-side-panel-btn',
+    'primary',
+  );
+  const secondary = panelLink(
+    readTextField(row, 'panelSecondaryText', at('panelSecondaryText')),
+    readLinkField(row, 'panelSecondaryLink', at('panelSecondaryLink')),
+    'article-details-side-panel-btn',
+    'text-link',
+  );
+
+  const panel = document.createElement('aside');
+  panel.className = 'article-details-side-panel';
+  moveInstrumentation(row, panel);
+
+  const picture = image.picture || null;
+  if (picture) {
+    const media = document.createElement('div');
+    media.className = 'article-details-side-panel-image';
+    media.append(picture);
+    panel.append(media);
+    panel.classList.add('has-panel-image');
+  }
+
+  const parts = [
+    panelElement('h2', 'article-details-side-panel-title u-h3', title),
+    panelElement('div', 'article-details-side-panel-text', text, true),
+  ].filter(Boolean);
+  panel.append(...parts);
+
+  if (primary || secondary) {
+    const actions = document.createElement('div');
+    actions.className = 'article-details-side-panel-actions';
+    // The panel is always navy, so its buttons take the dark form.
+    markButtonSurface(actions, true);
+    actions.append(...[primary, secondary].filter(Boolean));
+    panel.append(actions);
+    parts.push(actions);
+  }
+
+  const footerEl = panelElement('div', 'article-details-side-panel-footer', footer, true);
+  if (footerEl) {
+    panel.append(footerEl);
+    parts.push(footerEl);
+  }
+
+  if (!parts.length) {
+    if (!picture) {
+      // An empty panel still needs something to click in the editor.
+      if (!inEditor) return null;
+      const hint = document.createElement('p');
+      hint.className = 'article-details-side-panel-text';
+      hint.textContent = 'Hero side panel: add a title, text or button.';
+      panel.append(hint);
+    } else {
+      panel.classList.add('is-image-only');
+    }
+  }
+
+  return panel;
+}
+
 function buildHero(fields) {
   const image = fields.headerImage || fields.thumbnail;
 
@@ -964,6 +1106,16 @@ function buildHero(fields) {
     excerpt.className = 'article-details-excerpt';
     excerpt.textContent = fields.description;
     inner.append(excerpt);
+  }
+
+  // With a side panel the title column and the panel sit side by side. Without
+  // one the markup stays exactly as every published blog already renders it.
+  if (fields.heroPanel) {
+    const main = document.createElement('div');
+    main.className = 'article-details-hero-main';
+    main.append(...inner.children);
+    inner.classList.add('has-side-panel');
+    inner.append(main, fields.heroPanel);
   }
 
   section.append(inner);
@@ -1108,6 +1260,9 @@ function buildBody(fields) {
 
 export default async function decorate(block) {
   ensureAuthoringContainer(block);
+  // Out before any field is read: the published row layout is computed once,
+  // from whatever rows are left.
+  const heroPanel = buildHeroPanel(takeHeroPanelRow(block));
 
   const resourceData = await getResourceData(block);
 
@@ -1130,6 +1285,7 @@ export default async function decorate(block) {
     heroOverlayOpacity: getTextField(block, 'heroOverlayOpacity'),
     heroGradientOverlay: getTextField(block, 'heroGradientOverlay'),
     heroTextColor: getTextField(block, 'heroTextColor'),
+    heroPanel,
     isAuthoring: hasAuthoringContext(block),
   };
   fields.articleBodyItems = getArticleBodyItems(block, fields.pageTitle, resourceData);
