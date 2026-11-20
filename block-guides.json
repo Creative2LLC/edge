@@ -1318,7 +1318,15 @@
       "settings": "Library settings. Leave as they are.",
       "apiBaseUrl": "Library settings. Leave as they are; with it set, library records replace hand-made cards.",
       "selected": "Library settings. Leave as they are.",
-      "limit": "Library settings. Leave as they are."
+      "limit": "Library settings. Leave as they are.",
+      "pinned1": "Optional resource page to show as a card. With any picked, the block shows those library resources, in the order picked, instead of hand-made cards.",
+      "pinned2": "Optional further resource page, shown in this order.",
+      "pinned3": "Optional further resource page, shown in this order.",
+      "pinned4": "Optional further resource page, shown in this order.",
+      "pinned5": "Optional further resource page, shown in this order.",
+      "pinned6": "Optional further resource page, shown in this order.",
+      "pinned7": "Optional further resource page, shown in this order.",
+      "pinned8": "Optional further resource page, shown in this order."
     }
   },
   "resources-browser": {
@@ -1332,14 +1340,20 @@
     }
   },
   "resources-carousel": {
-    "looks": "A sliding row of related resources or articles, filled from the resource library based on the page it sits on, with a 'find all' button.",
+    "looks": "A sliding row of related resources or articles: up to six pinned pages first, then the rest filled from the resource library based on the page it sits on, with a 'find all' button.",
     "use": "Only on resource and article pages, when asked.",
     "on_request": true,
     "fields": {
       "heading": "Pre-filled 'Related Resources'.",
       "sourceType": "resources (default) or articles.",
       "findAllLabel": "The button's words, with findAllHref.",
-      "programs": "Optional program filter, e.g. kidsmartz or netsmartz."
+      "programs": "Optional program filter, e.g. kidsmartz or netsmartz.",
+      "pinned1": "Optional page to show first: a resource page when sourceType is resources, a blog page when it is articles. The rest fill automatically.",
+      "pinned2": "Optional second pinned page.",
+      "pinned3": "Optional third pinned page.",
+      "pinned4": "Optional fourth pinned page.",
+      "pinned5": "Optional fifth pinned page.",
+      "pinned6": "Optional sixth pinned page."
     }
   },
   "section-title": {

@@ -31,7 +31,8 @@ module.exports = {
       'colored-icon-text': 29,
       'colored-text': 17,
       'news-article': 7,
-      resources: 12,
+      // 11 settings + 8 "Selected Resource Page" pickers (2026-11-20).
+      resources: 19,
       'resource-item': 8,
       'resource-hero': 36,
       'resources-browser': 13,

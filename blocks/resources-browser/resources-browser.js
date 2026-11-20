@@ -626,7 +626,9 @@ function mapApiResource(resource) {
     imgSrc: resource.thumbnail || '',
     imageAlt: resource.title || '',
     title: resource.title || '',
-    subtitle: resource.excerpt || '',
+    // The top download's own description, else the hero's. The backend
+    // resolves that fallback; `excerpt` covers an API that predates the field.
+    subtitle: resource.card_excerpt || resource.excerpt || '',
     linkUrl: resource.primary_url || resource.detail_path || resource.download_url || resource.resource_url || '',
     durationMinutes: durationMinutes || '',
     durationLabel: resource.duration_label || '',

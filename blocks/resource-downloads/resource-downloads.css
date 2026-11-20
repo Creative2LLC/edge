@@ -1123,28 +1123,8 @@ main > .section > div.resource-downloads-wrapper:has(.resource-downloads-list:is
   color: var(--ncmec-gray-dark);
 }
 
-/* Title and description share a 5-line budget, title first, the same as the
-   resource library's cards. resource-downloads.js measures how many lines the
-   title took and hands the rest to the description via --rd-description-lines. */
-.resource-downloads-item:is(.is-horizontal, .is-tile) .resource-downloads-item-title {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
-}
-
-.resource-downloads-item:is(.is-horizontal, .is-tile) .resource-downloads-item-description {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--rd-description-lines, 3);
-}
-
-/* Title used the whole budget: nothing left for the description. Needs to beat
-   the -webkit-box display above, which would otherwise defeat [hidden]. */
-.resource-downloads-item:is(.is-horizontal, .is-tile) .resource-downloads-item-description[hidden] {
-  display: none;
-}
+/* Download cards show their full title and description: no line limit here
+   (2026-11-20). The resource library's cards keep their 5-line budget. */
 
 .resource-downloads-meta-panel.is-card-meta {
   flex: 0 0 auto;

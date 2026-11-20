@@ -1,13 +1,19 @@
 {
   "resources-carousel": {
-    "looks": "A sliding row of related resources or articles, filled from the resource library based on the page it sits on, with a 'find all' button.",
+    "looks": "A sliding row of related resources or articles: up to six pinned pages first, then the rest filled from the resource library based on the page it sits on, with a 'find all' button.",
     "use": "Only on resource and article pages, when asked.",
     "on_request": true,
     "fields": {
       "heading": "Pre-filled 'Related Resources'.",
       "sourceType": "resources (default) or articles.",
       "findAllLabel": "The button's words, with findAllHref.",
-      "programs": "Optional program filter, e.g. kidsmartz or netsmartz."
+      "programs": "Optional program filter, e.g. kidsmartz or netsmartz.",
+      "pinned1": "Optional page to show first: a resource page when sourceType is resources, a blog page when it is articles. The rest fill automatically.",
+      "pinned2": "Optional second pinned page.",
+      "pinned3": "Optional third pinned page.",
+      "pinned4": "Optional fourth pinned page.",
+      "pinned5": "Optional fifth pinned page.",
+      "pinned6": "Optional sixth pinned page."
     }
   }
 }

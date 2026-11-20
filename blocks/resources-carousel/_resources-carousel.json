@@ -188,6 +188,37 @@
               "value": "button2-giving-outline"
             }
           ]
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned1",
+          "label": "Pinned Item 1 (Optional)",
+          "description": "Pick a resource page when Source Type is Resources, or a blog page when it is Articles. Pinned items show first, in this order; the rest of the carousel fills automatically. A pin that is unpublished or the wrong type is skipped."
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned2",
+          "label": "Pinned Item 2 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned3",
+          "label": "Pinned Item 3 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned4",
+          "label": "Pinned Item 4 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned5",
+          "label": "Pinned Item 5 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned6",
+          "label": "Pinned Item 6 (Optional)"
         }
       ]
     }

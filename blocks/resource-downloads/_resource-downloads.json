@@ -54,19 +54,19 @@
           "component": "select",
           "valueType": "string",
           "name": "gated",
-          "label": "Gating for this resource (read-only)",
-          "description": "Shows what the backend recorded for this resource, so you can see it without leaving the editor. Gating follows where a file is stored — private S3 bucket means registration is required, AEM DAM means public — so changing this does nothing: the block asks the API per file when the page renders, and the backend rewrites this field on its next sync. To actually change it, move the file's storage in the backend admin.",
+          "label": "Gating status (set by the backend; display only)",
+          "description": "This is a status display, not a setting. Picking a different option here does nothing: the backend decides gating from where each file is stored, and rewrites this field on its next sync. A file in the private S3 bucket is gated (registration required). A file in the AEM DAM is always open. To gate a file, use 'Upload gated download' in the editor toolbar above this block.",
           "options": [
             {
-              "name": "Not synced yet",
+              "name": "Status: not synced yet",
               "value": ""
             },
             {
-              "name": "Gated — private S3 bucket, registration required",
+              "name": "Status: Gated (set by the backend)",
               "value": "true"
             },
             {
-              "name": "Open — AEM DAM, public",
+              "name": "Status: Open (set by the backend)",
               "value": "false"
             }
           ],
@@ -179,19 +179,19 @@
           "component": "select",
           "valueType": "string",
           "name": "gated",
-          "label": "Gating for this file (read-only)",
-          "description": "Shows where this file is stored, which is what decides gating. A file in the private S3 bucket requires registration; a file in the AEM DAM is public and cannot be gated, because AEM publishes it to the public tier as soon as a page referencing it is published. Uploaded files are stamped here automatically; a DAM file you picked yourself stays blank. Changing it does nothing — the block asks the API per file when the page renders. To gate a file that is already open, migrate it in the backend admin — no re-upload needed.",
+          "label": "Gating status (set by the backend; display only)",
+          "description": "This is a status display, not a setting. Picking a different option here does nothing: the card shows a lock only when the backend says this file is gated, and that is decided by where the file is stored. A file in the private S3 bucket is gated (registration required). A file picked from the AEM DAM is always open and cannot be gated, because AEM makes it public as soon as the page is published. To gate a file, use 'Upload gated download' in the editor toolbar above this block.",
           "options": [
             {
-              "name": "Not stamped — picked from the DAM, so public",
+              "name": "Status: Open (DAM file)",
               "value": ""
             },
             {
-              "name": "Gated — private S3 bucket, registration required",
+              "name": "Status: Gated (set by the backend)",
               "value": "true"
             },
             {
-              "name": "Open — AEM DAM, public",
+              "name": "Status: Open (set by the backend)",
               "value": "false"
             }
           ],

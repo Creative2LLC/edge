@@ -14,7 +14,15 @@
       "settings": "Library settings. Leave as they are.",
       "apiBaseUrl": "Library settings. Leave as they are; with it set, library records replace hand-made cards.",
       "selected": "Library settings. Leave as they are.",
-      "limit": "Library settings. Leave as they are."
+      "limit": "Library settings. Leave as they are.",
+      "pinned1": "Optional resource page to show as a card. With any picked, the block shows those library resources, in the order picked, instead of hand-made cards.",
+      "pinned2": "Optional further resource page, shown in this order.",
+      "pinned3": "Optional further resource page, shown in this order.",
+      "pinned4": "Optional further resource page, shown in this order.",
+      "pinned5": "Optional further resource page, shown in this order.",
+      "pinned6": "Optional further resource page, shown in this order.",
+      "pinned7": "Optional further resource page, shown in this order.",
+      "pinned8": "Optional further resource page, shown in this order."
     }
   },
   "resource-item": {

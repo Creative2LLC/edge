@@ -22985,19 +22985,19 @@
         "component": "select",
         "valueType": "string",
         "name": "gated",
-        "label": "Gating for this resource (read-only)",
-        "description": "Shows what the backend recorded for this resource, so you can see it without leaving the editor. Gating follows where a file is stored — private S3 bucket means registration is required, AEM DAM means public — so changing this does nothing: the block asks the API per file when the page renders, and the backend rewrites this field on its next sync. To actually change it, move the file's storage in the backend admin.",
+        "label": "Gating status (set by the backend; display only)",
+        "description": "This is a status display, not a setting. Picking a different option here does nothing: the backend decides gating from where each file is stored, and rewrites this field on its next sync. A file in the private S3 bucket is gated (registration required). A file in the AEM DAM is always open. To gate a file, use 'Upload gated download' in the editor toolbar above this block.",
         "options": [
           {
-            "name": "Not synced yet",
+            "name": "Status: not synced yet",
             "value": ""
           },
           {
-            "name": "Gated — private S3 bucket, registration required",
+            "name": "Status: Gated (set by the backend)",
             "value": "true"
           },
           {
-            "name": "Open — AEM DAM, public",
+            "name": "Status: Open (set by the backend)",
             "value": "false"
           }
         ],
@@ -23110,19 +23110,19 @@
         "component": "select",
         "valueType": "string",
         "name": "gated",
-        "label": "Gating for this file (read-only)",
-        "description": "Shows where this file is stored, which is what decides gating. A file in the private S3 bucket requires registration; a file in the AEM DAM is public and cannot be gated, because AEM publishes it to the public tier as soon as a page referencing it is published. Uploaded files are stamped here automatically; a DAM file you picked yourself stays blank. Changing it does nothing — the block asks the API per file when the page renders. To gate a file that is already open, migrate it in the backend admin — no re-upload needed.",
+        "label": "Gating status (set by the backend; display only)",
+        "description": "This is a status display, not a setting. Picking a different option here does nothing: the card shows a lock only when the backend says this file is gated, and that is decided by where the file is stored. A file in the private S3 bucket is gated (registration required). A file picked from the AEM DAM is always open and cannot be gated, because AEM makes it public as soon as the page is published. To gate a file, use 'Upload gated download' in the editor toolbar above this block.",
         "options": [
           {
-            "name": "Not stamped — picked from the DAM, so public",
+            "name": "Status: Open (DAM file)",
             "value": ""
           },
           {
-            "name": "Gated — private S3 bucket, registration required",
+            "name": "Status: Gated (set by the backend)",
             "value": "true"
           },
           {
-            "name": "Open — AEM DAM, public",
+            "name": "Status: Open (set by the backend)",
             "value": "false"
           }
         ],
@@ -23801,7 +23801,7 @@
         "valueType": "string",
         "name": "tags",
         "label": "Universal Tags",
-        "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
+        "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed. Tags are saved to the resource library but are not shown in the hero for now."
       },
       {
         "component": "tab",
@@ -24822,6 +24822,37 @@
             "value": "button2-giving-outline"
           }
         ]
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned1",
+        "label": "Pinned Item 1 (Optional)",
+        "description": "Pick a resource page when Source Type is Resources, or a blog page when it is Articles. Pinned items show first, in this order; the rest of the carousel fills automatically. A pin that is unpublished or the wrong type is skipped."
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned2",
+        "label": "Pinned Item 2 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned3",
+        "label": "Pinned Item 3 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned4",
+        "label": "Pinned Item 4 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned5",
+        "label": "Pinned Item 5 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned6",
+        "label": "Pinned Item 6 (Optional)"
       }
     ]
   },
@@ -24949,6 +24980,47 @@
             "value": "layout-grid"
           }
         ]
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned1",
+        "label": "Selected Resource Page 1 (Optional)",
+        "description": "Pick a resource page. Picked resources show in this order, instead of the newest. Resources typed into Selected Resource Slugs come after them. Resource Limit still caps how many cards show. A page that is not a published resource in the library is skipped."
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned2",
+        "label": "Selected Resource Page 2 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned3",
+        "label": "Selected Resource Page 3 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned4",
+        "label": "Selected Resource Page 4 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned5",
+        "label": "Selected Resource Page 5 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned6",
+        "label": "Selected Resource Page 6 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned7",
+        "label": "Selected Resource Page 7 (Optional)"
+      },
+      {
+        "component": "aem-content",
+        "name": "pinned8",
+        "label": "Selected Resource Page 8 (Optional)"
       }
     ]
   },

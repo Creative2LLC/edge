@@ -16,6 +16,11 @@ import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const AEM_PUBLISH_ASSET_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
+// The authored Universal Tags are not shown in the hero for now (2026-11-20).
+// The field, the sync into the backend and the rendering below all stay, so
+// setting this back to true is all it takes to bring the Tags row back.
+const SHOW_TAGS = false;
+
 const FIELD_INDEX = {
   variant: 0,
   content_height: 1,
@@ -896,7 +901,7 @@ function collectTaxonomyGroups(fields) {
       key: 'tags',
       label: 'Tags',
       icon: '',
-      values: parseTagEntries(fields.tags),
+      values: SHOW_TAGS ? parseTagEntries(fields.tags) : [],
     },
   ].filter((group) => group.values.filter(Boolean).length);
 }

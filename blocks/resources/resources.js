@@ -17,6 +17,7 @@ import attachDragScroll, {
 import focusScrollableRegion from '../../scripts/a11y-utils.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 import { showSkeleton } from '../../scripts/skeleton.js';
+import getSiteSearchConfig from '../../scripts/site-search-config.js';
 import {
   applyButtonStyle,
   isDarkSurface,
@@ -303,6 +304,58 @@ function parseIntSafe(value, fallback = 6) {
 
 function normalizeApiBaseUrl(value) {
   return `${value || ''}`.trim().replace(/\/+$/, '');
+}
+
+// Resource pages picked in the editor ("Selected Resource Page 1-8"), appended at the
+// END of the model so no earlier row moved. They do what typed slugs in `selected` do.
+const PIN_FIELDS = ['pinned1', 'pinned2', 'pinned3', 'pinned4', 'pinned5', 'pinned6',
+  'pinned7', 'pinned8'];
+const PAGE_PATH = /\/content\/[^\s?#]+/;
+
+/**
+ * The resource slug a picked page stands for: its last path segment, which is
+ * the page name the backend sync stores as the slug. The link's TEXT is the JCR
+ * path with its original casing; the href is the lowercased public path, used
+ * only when the text has no path (decorateButtons may rewrite a lone link's label).
+ */
+function pinnedSlug(cell) {
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector('a');
+  const text = (anchor?.textContent || cell.textContent || '').trim();
+  const pagePath = text.match(PAGE_PATH)?.[0]
+    || (anchor?.getAttribute('href') || '').trim()
+    || (text.startsWith('/') ? text : '');
+  const segment = pagePath.split(/[?#]/)[0].replace(/\.html$/i, '').replace(/\/+$/, '')
+    .split('/').pop();
+  try { return decodeURIComponent(segment || ''); } catch { return segment || ''; }
+}
+
+/**
+ * Takes the picked pages out of the block before anything else reads it, the
+ * same way takeLayout takes the layout row. In the editor they bind by name.
+ * Published, they are found BY VALUE: a one-cell row holding a page link that
+ * comes after the `limit` row. The header button's link (row 4) is the only
+ * other one-cell page link and sits before it; card rows have several cells.
+ * Their position is not used because older pages have fewer rows before them.
+ * An unset picker leaves an empty one-cell row, which nothing reads as a card.
+ */
+function takePins(block) {
+  // The block's own row holding a field, whatever the block's class is called.
+  const rowOf = (node) => {
+    let row = node;
+    while (row.parentElement && row.parentElement !== block) row = row.parentElement;
+    return row;
+  };
+  const editorCells = PIN_FIELDS
+    .map((name) => block.querySelector(`[data-aue-prop="${name}"]`))
+    .filter(Boolean);
+  const rows = editorCells.length
+    ? editorCells.map(rowOf)
+    : [...block.children].slice(CONFIG_ROW_INDEX.limit + 1).filter((row) => (
+      row.children.length === 1 && PAGE_PATH.test(row.textContent)
+    ));
+  const slugs = (editorCells.length ? editorCells : rows).map(pinnedSlug).filter(Boolean);
+  rows.forEach((row) => row.remove());
+  return [...new Set(slugs)];
 }
 
 function splitSelectedResources(values) {
@@ -669,7 +722,10 @@ async function loadApiResources(config) {
   const apiRoot = normalizeApiBaseUrl(config.apiBaseUrl);
   if (!apiRoot) return [];
 
-  const selected = splitSelectedResources(parseList(config.selected));
+  // Picked pages first, in the order picked, then any typed slugs or ids.
+  const selected = splitSelectedResources([
+    ...new Set([...(config.pins || []), ...parseList(config.selected)]),
+  ]);
   const limit = parseIntSafe(config.limit, 6);
   const selectionCount = selected.ids.length + selected.slugs.length;
   const requestSize = Math.max(limit, selectionCount || limit);
@@ -714,7 +770,7 @@ async function loadApiResources(config) {
     .map((item) => ({ data: mapApiResource(item), row: null }));
 }
 
-async function decorateBlock(block) {
+async function decorateBlock(block, pins = []) {
   const configRows = extractConfigRows(block);
   const settings = parseKeyValueLines(readConfigField(configRows, 'settings', [5, 4]));
   const config = {
@@ -747,7 +803,11 @@ async function decorateBlock(block) {
       || getSettingValue(settings, ['programpreset', 'programs', 'program']),
     gradeAgePreset: readConfigField(configRows, 'gradeAgePreset', [15, 14])
       || getSettingValue(settings, ['gradeagepreset', 'gradeages', 'grade_ages', 'grades']),
+    pins,
   };
+  // Picking a resource page asks for library cards, so it must not depend on the
+  // author also knowing to fill in the API Base URL.
+  if (pins.length && !config.apiBaseUrl) config.apiBaseUrl = getSiteSearchConfig().apiBaseUrl;
 
   configRows.forEach((row) => row.remove());
   if (config.backgroundColor) {
@@ -922,6 +982,8 @@ function takeLayout(block) {
 }
 
 export default async function decorate(block) {
+  // Picked pages come out first, while every other row is where its reader expects it.
+  const pins = takePins(block);
   const layout = takeLayout(block);
   // Appended style dropdowns come out of the published markup first; see button-utils.
   takeAppendedStyleCells(block);
@@ -932,7 +994,7 @@ export default async function decorate(block) {
   );
   // Set before decorating, so the cards are laid out as a grid from the first frame.
   block.classList.toggle('resources-layout-grid', layout === 'grid');
-  await decorateBlock(block);
+  await decorateBlock(block, pins);
   restyleAppendedButtons(block, {
     '.resources-button': buttonStyle,
   });

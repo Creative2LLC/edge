@@ -30,6 +30,9 @@ const FIELD_COLUMN_INDEX = {
   programs: 8,
 };
 
+// Author-pinned pages, appended at the END of the model so no earlier row moves.
+const PIN_FIELDS = ['pinned1', 'pinned2', 'pinned3', 'pinned4', 'pinned5', 'pinned6'];
+
 function normalizeText(value) {
   return `${value || ''}`.trim();
 }
@@ -62,6 +65,38 @@ function getSlugFromPathname() {
   const clean = window.location.pathname.replace(/[?#].*$/, '').replace(/\/+$/, '');
   const parts = clean.split('/').filter(Boolean);
   return normalizeSlug(parts[parts.length - 1] || '');
+}
+
+/**
+ * A pinned page as the backend can match it (see ResolvesPinnedRelated). The
+ * link's text is the JCR path with its original casing, which matches the
+ * stored page_path exactly; the href is the lowercased public path, which also
+ * resolves. Only the path is lifted out of the text, because decorateButtons
+ * may have added to a lone link's label. Same reading as related-articles.
+ */
+function readPinnedPath(cell) {
+  if (!cell) return '';
+  const anchor = cell.tagName === 'A' ? cell : cell.querySelector('a');
+  const text = normalizeText(anchor?.textContent || cell.textContent);
+  const jcrPath = text.match(/\/content\/[^\s?#]+/)?.[0];
+  if (jcrPath) return jcrPath;
+  return normalizeText(anchor?.getAttribute('href')) || (text.startsWith('/') ? text : '');
+}
+
+/**
+ * In the editor each pin binds by name. On a published page the pins are found
+ * BY VALUE among the rows after `programs`, not by a fixed index: by now
+ * takeAppendedStyleCells has removed whichever of the two style rows held a
+ * value, so how far the pins sit from `programs` depends on the styles chosen.
+ * The only other rows that can be left there are those styles' empty rows, and
+ * an empty row reads as no pin.
+ */
+function readPins(block, rows) {
+  const inEditor = Boolean(block.querySelector('[data-aue-prop]'));
+  const cells = inEditor
+    ? PIN_FIELDS.map((name) => block.querySelector(`[data-aue-prop="${name}"]`))
+    : rows.slice(FIELD_COLUMN_INDEX.programs + 1).map((row) => row.children[0]);
+  return [...new Set(cells.map(readPinnedPath).filter(Boolean))];
 }
 
 function readConfig(block) {
@@ -108,6 +143,7 @@ function readConfig(block) {
     learnMoreLabel: textFieldValue('learnMoreLabel') || 'Learn more',
     limit: Math.max(1, Math.min(20, parseInt(textFieldValue('limit'), 10) || 8)),
     programs: textFieldValue('programs'),
+    pins: readPins(block, rows),
     findAllStyle,
     learnMoreStyle,
   };
@@ -115,64 +151,77 @@ function readConfig(block) {
 
 // ── Fetch ────────────────────────────────────────────────────────────────────
 
-async function fetchItems(config) {
+function splitPrograms(programs) {
+  return `${programs || ''}`.split(',').map((p) => p.trim()).filter(Boolean);
+}
+
+function toArticleCard(article) {
+  return {
+    title: article.title,
+    subtitle: article.excerpt || article.description || '',
+    href: resolveSiteHref(article.page_path || article.primary_url || article.slug || ''),
+  };
+}
+
+function toResourceCard(resource) {
+  return {
+    title: resource.title,
+    subtitle: resource.excerpt || resource.description || '',
+    href: resourceHref(resource),
+  };
+}
+
+/**
+ * The page's own record, which carries its related items (`related_articles`
+ * for both types): author pins first, in order, then automatic picks. This is
+ * the endpoint the Related Blogs block uses. The block used to call
+ * `/api/{type}/{slug}/related`, which does not exist, so Resources always fell
+ * through to the newest resources and Articles always came back empty.
+ * Null when the page has no record of this type (e.g. a hub page).
+ */
+async function fetchRelated(config, type, locale) {
   const {
-    apiBaseUrl, sourceType, slug, limit, programs,
+    apiBaseUrl, slug, limit, programs, pins,
   } = config;
-  const locale = currentSiteLocale();
-
-  if (sourceType === 'articles') {
-    const url = new URL(`/api/articles/${encodeURIComponent(slug)}/related`, `${apiBaseUrl}/`);
-    url.searchParams.set('limit', String(limit));
-    url.searchParams.set('locale', locale);
-    const resp = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-    if (!resp.ok) return [];
-    const payload = await resp.json();
-    return (payload.data || []).map((a) => ({
-      title: a.title,
-      subtitle: a.excerpt || a.description || '',
-      href: resolveSiteHref(a.page_path || a.slug || ''),
-    }));
-  }
-
-  const url = new URL(`/api/resources/${encodeURIComponent(slug)}/related`, `${apiBaseUrl}/`);
-  url.searchParams.set('limit', String(limit));
+  if (!slug) return null;
+  const url = new URL(`/api/${type}/${encodeURIComponent(slug)}`, `${apiBaseUrl}/`);
+  url.searchParams.set('related_limit', String(limit));
   url.searchParams.set('locale', locale);
-  if (programs) {
-    programs.split(',').map((p) => p.trim()).filter(Boolean).forEach((p) => {
-      url.searchParams.append('programs[]', p);
-    });
+  pins.forEach((pin) => url.searchParams.append('related_pins[]', pin));
+  // Narrows the automatic picks only; a pinned page always shows.
+  if (type === 'resources') {
+    splitPrograms(programs).forEach((p) => url.searchParams.append('related_programs[]', p));
   }
   const resp = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-  if (!resp.ok || resp.status === 404) {
-    // Fall back to general listing filtered by program. One extra, because the
-    // resource this page is about is in that list and is dropped below.
-    const listUrl = new URL('/api/resources', `${apiBaseUrl}/`);
-    listUrl.searchParams.set('per_page', String(limit + 1));
-    listUrl.searchParams.set('locale', locale);
-    if (programs) {
-      programs.split(',').map((p) => p.trim()).filter(Boolean).forEach((p) => {
-        listUrl.searchParams.append('programs[]', p);
-      });
-    }
-    const listResp = await fetch(listUrl.toString(), { headers: { Accept: 'application/json' } });
-    if (!listResp.ok) return [];
-    const listPayload = await listResp.json();
-    return (listPayload.data || [])
-      .filter((r) => r.slug !== slug)
-      .slice(0, limit)
-      .map((r) => ({
-        title: r.title,
-        subtitle: r.excerpt || r.description || '',
-        href: resourceHref(r),
-      }));
-  }
+  if (!resp.ok) return null;
   const payload = await resp.json();
-  return (payload.data || []).map((r) => ({
-    title: r.title,
-    subtitle: r.excerpt || r.description || '',
-    href: resourceHref(r),
-  }));
+  return payload.data?.related_articles || [];
+}
+
+// Newest items of the type (program-filtered for resources). One extra, because
+// the page's own item can be in the list and is dropped.
+async function fetchLatest(config, type, locale) {
+  const {
+    apiBaseUrl, slug, limit, programs,
+  } = config;
+  const url = new URL(`/api/${type}`, `${apiBaseUrl}/`);
+  url.searchParams.set('per_page', String(limit + 1));
+  url.searchParams.set('locale', locale);
+  if (type === 'resources') {
+    splitPrograms(programs).forEach((p) => url.searchParams.append('programs[]', p));
+  }
+  const resp = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+  if (!resp.ok) return [];
+  const payload = await resp.json();
+  return (payload.data || []).filter((item) => item.slug !== slug).slice(0, limit);
+}
+
+async function fetchItems(config) {
+  const type = config.sourceType === 'articles' ? 'articles' : 'resources';
+  const locale = currentSiteLocale();
+  const items = await fetchRelated(config, type, locale)
+    ?? await fetchLatest(config, type, locale);
+  return items.map(type === 'articles' ? toArticleCard : toResourceCard);
 }
 
 // ── DOM builders ─────────────────────────────────────────────────────────────

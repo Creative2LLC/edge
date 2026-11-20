@@ -157,6 +157,47 @@
               "value": "layout-grid"
             }
           ]
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned1",
+          "label": "Selected Resource Page 1 (Optional)",
+          "description": "Pick a resource page. Picked resources show in this order, instead of the newest. Resources typed into Selected Resource Slugs come after them. Resource Limit still caps how many cards show. A page that is not a published resource in the library is skipped."
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned2",
+          "label": "Selected Resource Page 2 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned3",
+          "label": "Selected Resource Page 3 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned4",
+          "label": "Selected Resource Page 4 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned5",
+          "label": "Selected Resource Page 5 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned6",
+          "label": "Selected Resource Page 6 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned7",
+          "label": "Selected Resource Page 7 (Optional)"
+        },
+        {
+          "component": "aem-content",
+          "name": "pinned8",
+          "label": "Selected Resource Page 8 (Optional)"
         }
       ]
     },

@@ -640,7 +640,7 @@
           "valueType": "string",
           "name": "tags",
           "label": "Universal Tags",
-          "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed."
+          "description": "Enter one tag per line. Use Name|slug only when a specific slug is needed. Tags are saved to the resource library but are not shown in the hero for now."
         },
         {
           "component": "tab",

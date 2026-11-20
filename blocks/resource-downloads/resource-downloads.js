@@ -1912,60 +1912,6 @@ function buildCardTitleEl(entry, sizeClass = 'u-h4') {
   return title;
 }
 
-/* Title + description never exceed this many lines together: the same budget
-   as the resource library's cards (CARD_TEXT_LINE_BUDGET in resources-browser.js). */
-const CARD_TEXT_LINE_BUDGET = 5;
-
-function lineHeightOf(element) {
-  const styles = window.getComputedStyle(element);
-  const lineHeight = Number.parseFloat(styles.lineHeight);
-  if (Number.isFinite(lineHeight) && lineHeight > 0) return lineHeight;
-  // line-height: normal does not resolve to a number; approximate from the font.
-  const fontSize = Number.parseFloat(styles.fontSize);
-  return Number.isFinite(fontSize) && fontSize > 0 ? fontSize * 1.2 : 0;
-}
-
-/**
- * Give the title as many of the shared lines as it needs, then let the
- * description have whatever is left. The title is capped at the full budget by
- * CSS, so measuring it here always returns a number within the budget.
- */
-function applyCardTextBudget(card) {
-  const title = card?.querySelector('.resource-downloads-item-title');
-  const description = card?.querySelector('.resource-downloads-item-description');
-  // Zero height means the section is still hidden; the observer fires again once it shows.
-  if (!title || !description || !title.offsetHeight) return;
-  const lineHeight = lineHeightOf(title);
-  const usedLines = lineHeight
-    ? Math.min(CARD_TEXT_LINE_BUDGET, Math.max(1, Math.round(title.offsetHeight / lineHeight)))
-    : 1;
-  const remaining = Math.max(0, CARD_TEXT_LINE_BUDGET - usedLines);
-  card.style.setProperty('--rd-description-lines', String(remaining));
-  description.hidden = remaining === 0;
-}
-
-/**
- * Re-measure whenever a title changes size: when its section is first shown,
- * and when a resize rewraps it. Watching the title (not the card) means the
- * description clamp this sets can never re-trigger the observer.
- */
-function observeCardTextBudget(cards) {
-  const titles = cards.filter((card) => card.matches('.is-horizontal, .is-tile'))
-    .map((card) => card.querySelector('.resource-downloads-item-title'))
-    .filter(Boolean);
-  if (!titles.length) return;
-  if (!('ResizeObserver' in window)) {
-    titles.forEach((title) => applyCardTextBudget(title.closest('.resource-downloads-item')));
-    return;
-  }
-  const observer = new ResizeObserver((records) => {
-    window.requestAnimationFrame(() => records.forEach(({ target }) => {
-      applyCardTextBudget(target.closest('.resource-downloads-item'));
-    }));
-  });
-  titles.forEach((title) => observer.observe(title));
-}
-
 // Image left, details right: title, description, Audience / Format / Time
 // across one row, then the button. Spans the full row in a grid.
 function buildHorizontalEntry(entry, isEditor) {
@@ -2217,7 +2163,6 @@ export default async function decorate(block) {
   block.replaceChildren(...children);
 
   const cards = [...list.children];
-  observeCardTextBudget(cards);
 
   // Reveal cards with a soft staggered rise as they enter the viewport. The
   // CSS only hides cards under prefers-reduced-motion: no-preference, so the
