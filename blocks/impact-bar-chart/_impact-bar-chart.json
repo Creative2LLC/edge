@@ -103,14 +103,23 @@
           "valueType": "string",
           "name": "chartStyle",
           "label": "Chart Style",
+          "description": "Columns are the classic NCMEC impact charts: vertical bars on a value axis, grouped when there are several series.",
           "options": [
             {
-              "name": "Standard",
+              "name": "Columns (classic)",
               "value": ""
             },
             {
-              "name": "Skinny",
+              "name": "Columns, thin",
               "value": "skinny"
+            },
+            {
+              "name": "Horizontal bars",
+              "value": "bars"
+            },
+            {
+              "name": "Horizontal bars, skinny",
+              "value": "bars-skinny"
             }
           ],
           "value": ""
@@ -189,6 +198,28 @@
           "name": "disclaimer",
           "label": "Disclaimer Text (Optional)",
           "description": "Optional fine print shown below the chart/table.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "valueScale",
+          "label": "Value Scale",
+          "description": "Columns only. Auto uses a log scale when the tallest bar is 50 or more times the shortest, so small values stay visible, as the classic charts did.",
+          "options": [
+            {
+              "name": "Auto",
+              "value": ""
+            },
+            {
+              "name": "Linear",
+              "value": "linear"
+            },
+            {
+              "name": "Log",
+              "value": "log"
+            }
+          ],
           "value": ""
         }
       ]

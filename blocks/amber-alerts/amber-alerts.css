@@ -102,6 +102,25 @@
   color: #b42318;
 }
 
+/* ?amber_preview: the same yellow pill the posters page puts on its sample poster. */
+.amber-alerts-preview-notice {
+  width: fit-content;
+  margin: 0 0 18px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ncmec-yellow);
+  color: var(--ncmec-navy-dark);
+  font-size: var(--caption-size);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.amber-alerts-preview-notice[hidden] {
+  display: none;
+}
+
 /* auto-fill (not auto-fit) keeps the empty column, so a lone alert stays
    one column wide instead of stretching across the whole row. */
 .amber-alerts-list {

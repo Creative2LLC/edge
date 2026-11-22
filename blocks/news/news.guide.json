@@ -10,7 +10,9 @@
       "button": "Optional 'View More' button under the cards.",
       "blogFeed": "Adds the 3, 4, 6 or 9 newest blogs after any cards you add by hand. Use it instead of adding items when the document asks for the latest posts.",
       "blogFilter": "Limits blogFeed to one area, topic, story type or program, e.g. a topic page's own topic. Empty = any topic.",
-      "featuredMode": "featured shows the first card large; none (default) keeps every card the same size."
+      "featuredMode": "featured shows the first card large; none (default) keeps every card the same size.",
+      "viewMoreMode": "news-more-expand (default) reveals the extra cards in place; news-more-link turns the button into a link and shows only the first cards.",
+      "viewMoreLink": "Only with news-more-link: the page the button opens. Empty = the blog browser (/blog)."
     }
   },
   "news-article": {

@@ -1,6 +1,7 @@
 import { sampleRUM } from './aem.js';
+import { DEFAULT_POSTER_PAGE_PATH } from './poster-link-utils.js';
 
-const POSTER_RESULTS_PAGE = '/missing-children-posters';
+const POSTER_RESULTS_PAGE = DEFAULT_POSTER_PAGE_PATH;
 
 const ERROR_CONFIG = {
   403: {

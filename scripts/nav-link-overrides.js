@@ -3,11 +3,11 @@ import resolveSiteHref from './link-utils.js';
 const NAV_LINKS = [
   {
     labels: ['amber alerts', 'amber alert'],
-    href: '/amber-alerts',
+    href: '/get-help/amber-alerts',
   },
   {
     labels: ['missing posters', 'missing children posters', 'missing poster'],
-    href: '/missing-children-posters',
+    href: '/get-help/missing-children-posters',
   },
   {
     labels: ['case anniversaries'],

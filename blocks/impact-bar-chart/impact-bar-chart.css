@@ -8,6 +8,16 @@
   --impact-bar-chart-track: var(--ncmec-blue-tint);
   --impact-bar-chart-color: var(--ncmec-blue-medium);
 
+  /* Columns (the classic chart). On a light surface the bars are Blue Dark with white
+     values; Light text mode is the navy surface the legacy report used: Blue Light bars,
+     navy values, white axis. */
+  --impact-bar-chart-plot-height: clamp(260px, 30vw, 400px);
+  --impact-bar-chart-bar-fill: var(--ncmec-blue-dark);
+  --impact-bar-chart-bar-ink: #fff;
+  --impact-bar-chart-axis-color: var(--impact-bar-chart-muted);
+  --impact-bar-chart-gridline: rgb(17 58 103 / 18%);
+  --impact-bar-chart-baseline: rgb(17 58 103 / 45%);
+
   max-width: var(--container);
   margin: 0 auto;
   padding: 68px 32px;
@@ -17,6 +27,11 @@
 .impact-bar-chart.impact-bar-chart-text-light {
   --impact-bar-chart-heading-color: #fff;
   --impact-bar-chart-copy-color: #fff;
+  --impact-bar-chart-bar-fill: var(--ncmec-blue-light);
+  --impact-bar-chart-bar-ink: var(--ncmec-navy-dark);
+  --impact-bar-chart-axis-color: #fff;
+  --impact-bar-chart-gridline: rgb(255 255 255 / 30%);
+  --impact-bar-chart-baseline: rgb(255 255 255 / 50%);
 }
 
 .impact-bar-chart .impact-bar-chart-inner {
@@ -379,6 +394,184 @@
   margin-bottom: 0;
 }
 
+/* COLUMNS: the classic impact chart. A value axis on the left, dashed gridlines, one column
+   per category (a group of thin columns when there are several series) and the category
+   name under it. Too many columns for the width scroll sideways instead of shrinking. */
+.impact-bar-chart .impact-bar-chart-columns {
+  position: relative;
+  min-width: 0;
+}
+
+.impact-bar-chart .impact-bar-chart-columns:focus-visible {
+  outline: 3px solid var(--impact-bar-chart-axis-color);
+  outline-offset: 6px;
+}
+
+.impact-bar-chart .impact-bar-chart-columns-scroll {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+
+.impact-bar-chart .impact-bar-chart-columns-frame {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 12px;
+
+  /* Room for the top tick label, which centres on the top of the axis. */
+  padding-top: 12px;
+}
+
+.impact-bar-chart .impact-bar-chart-axis {
+  display: grid;
+  height: var(--impact-bar-chart-plot-height);
+  color: var(--impact-bar-chart-axis-color);
+  font-size: var(--caption-size);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Every label shares one cell, so the axis is as wide as its widest label. */
+.impact-bar-chart .impact-bar-chart-tick {
+  grid-area: 1 / 1;
+  place-self: end end;
+  transform: translateY(calc(50% - (var(--impact-bar-chart-plot-height) * var(--impact-bar-chart-at))));
+}
+
+.impact-bar-chart .impact-bar-chart-plot {
+  --impact-bar-chart-group-min: 72px;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--impact-bar-chart-groups), minmax(var(--impact-bar-chart-group-min), 1fr));
+  align-items: start;
+}
+
+.impact-bar-chart.impact-bar-chart-multiseries .impact-bar-chart-plot {
+  --impact-bar-chart-group-min: calc((var(--impact-bar-chart-series) * 10px) + 24px);
+}
+
+.impact-bar-chart .impact-bar-chart-grid {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--impact-bar-chart-plot-height);
+  pointer-events: none;
+}
+
+.impact-bar-chart .impact-bar-chart-gridline {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--impact-bar-chart-at) * 100%);
+  left: 0;
+  border-top: 1px dashed var(--impact-bar-chart-gridline);
+}
+
+.impact-bar-chart .impact-bar-chart-gridline.is-baseline {
+  border-top-style: solid;
+  border-top-color: var(--impact-bar-chart-baseline);
+}
+
+/* Positioned so the columns paint over the gridlines. */
+.impact-bar-chart .impact-bar-chart-group {
+  position: relative;
+  display: grid;
+  grid-template-rows: var(--impact-bar-chart-plot-height) auto;
+  min-width: 0;
+}
+
+.impact-bar-chart .impact-bar-chart-bars {
+  --impact-bar-chart-bar-width: min(72%, 160px);
+
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  min-width: 0;
+  padding-inline: 8%;
+}
+
+.impact-bar-chart.impact-bar-chart-style-skinny .impact-bar-chart-bars {
+  --impact-bar-chart-bar-width: min(40%, 72px);
+}
+
+.impact-bar-chart .impact-bar-chart-group.is-authoring-placeholder .impact-bar-chart-bars {
+  outline: 1px dashed var(--impact-bar-chart-axis-color);
+  outline-offset: -1px;
+}
+
+/* A slot is a column at full plot height: the hover target, and where a short column
+   carries its value. The column is drawn inside it from the baseline up. */
+.impact-bar-chart .impact-bar-chart-slot {
+  position: relative;
+  flex: 0 1 var(--impact-bar-chart-bar-width);
+  transition: opacity 160ms ease;
+}
+
+.impact-bar-chart.impact-bar-chart-multiseries .impact-bar-chart-slot {
+  flex: 1 1 0;
+  max-width: 18px;
+}
+
+.impact-bar-chart.impact-bar-chart-multiseries.impact-bar-chart-style-skinny .impact-bar-chart-slot {
+  max-width: 12px;
+}
+
+.impact-bar-chart .impact-bar-chart-columns.has-active-bar .impact-bar-chart-slot:not(.is-active) {
+  opacity: 0.45;
+}
+
+.impact-bar-chart .impact-bar-chart-bar {
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--impact-bar-chart-height);
+  border-radius: 3px 3px 0 0;
+  background: var(--impact-bar-chart-bar-color, var(--impact-bar-chart-bar-fill));
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  transition: transform 760ms cubic-bezier(0.2, 1, 0.22, 1) calc(min(var(--bar-index), 40) * 14ms);
+}
+
+.impact-bar-chart.is-visible .impact-bar-chart-bar {
+  transform: scaleY(1);
+}
+
+/* The value sits inside the top of its column; a short column carries it above. */
+.impact-bar-chart .impact-bar-chart-bar-value {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  color: var(--impact-bar-chart-bar-ink);
+  font-size: var(--body-sm-size);
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
+}
+
+.impact-bar-chart .impact-bar-chart-bar-value.is-outside {
+  top: auto;
+  bottom: calc(var(--impact-bar-chart-height) + 6px);
+  color: var(--impact-bar-chart-axis-color);
+  opacity: 0;
+  transition: opacity 300ms ease calc(min(var(--bar-index), 40) * 14ms + 500ms);
+}
+
+.impact-bar-chart.is-visible .impact-bar-chart-bar-value.is-outside {
+  opacity: 1;
+}
+
+.impact-bar-chart .impact-bar-chart-group-label {
+  margin: 0;
+  padding: 12px 4px 0;
+  color: var(--impact-bar-chart-axis-color);
+  font-size: var(--body-sm-size);
+  text-align: center;
+  text-wrap: balance;
+}
+
 .impact-bar-chart .impact-bar-chart-empty {
   max-width: 760px;
   margin: 0 auto;
@@ -395,6 +588,23 @@
 @media (width <= 700px) {
   .impact-bar-chart {
     padding: 48px 0;
+  }
+
+  /* Narrow columns: the values and names step down a size, and a long name hyphenates
+     ("Abduc-tion") instead of breaking at the last letter that fits. */
+  .impact-bar-chart .impact-bar-chart-bar-value,
+  .impact-bar-chart .impact-bar-chart-group-label {
+    font-size: var(--caption-size);
+  }
+
+  .impact-bar-chart .impact-bar-chart-group-label {
+    padding-inline: 2px;
+    hyphens: auto;
+  }
+
+  /* Wide enough for a word like "Enticement" whole; the chart scrolls sideways anyway. */
+  .impact-bar-chart:not(.impact-bar-chart-multiseries) .impact-bar-chart-plot {
+    --impact-bar-chart-group-min: 84px;
   }
 
   .impact-bar-chart .impact-bar-chart-inner {
@@ -490,5 +700,15 @@
   .impact-bar-chart .impact-bar-chart-stack {
     transition: none;
     transform: scaleX(1);
+  }
+
+  .impact-bar-chart .impact-bar-chart-bar {
+    transition: none;
+    transform: none;
+  }
+
+  .impact-bar-chart .impact-bar-chart-bar-value.is-outside {
+    opacity: 1;
+    transition: none;
   }
 }

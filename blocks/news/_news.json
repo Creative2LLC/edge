@@ -261,6 +261,31 @@
               "value": "news-filter-programs-40th-anniversary"
             }
           ]
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "viewMoreMode",
+          "label": "View More Button",
+          "description": "Show more cards here, or link to the blog browser. Linking shows the first cards only, and the button always shows.",
+          "value": "news-more-expand",
+          "options": [
+            {
+              "name": "Show more cards on this page",
+              "value": "news-more-expand"
+            },
+            {
+              "name": "Link to the blog browser",
+              "value": "news-more-link"
+            }
+          ]
+        },
+        {
+          "component": "aem-content",
+          "valueType": "string",
+          "name": "viewMoreLink",
+          "label": "View More Link (Optional)",
+          "description": "Where the View More button goes when it links. Leave blank for the blog browser (/blog)."
         }
       ]
     },

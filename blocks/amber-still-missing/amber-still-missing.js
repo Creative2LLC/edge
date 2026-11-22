@@ -3,13 +3,13 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
+import { buildPosterDetailHref, DEFAULT_POSTER_PAGE_PATH } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   heading: 'Children Still Missing from AMBER Alerts - Expand for details',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/amber-alerts/still-missing',
-  posterPagePath: '/missing-children-posters',
+  posterPagePath: DEFAULT_POSTER_PAGE_PATH,
   emptyMessage: 'There are no children still missing from AMBER Alerts at this time.',
 };
 

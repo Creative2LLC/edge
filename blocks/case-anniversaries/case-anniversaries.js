@@ -10,13 +10,13 @@ import {
   readLinkField,
   readTextField,
 } from '../../scripts/block-field-utils.js';
-import { buildPosterDetailHref } from '../../scripts/poster-link-utils.js';
+import { buildPosterDetailHref, DEFAULT_POSTER_PAGE_PATH } from '../../scripts/poster-link-utils.js';
 
 const DEFAULTS = {
   findHeading: 'Find Cases',
   apiBaseUrl: 'https://stunning-dust-ntqeawud3dqy.on-vapor.com',
   endpointPath: '/api/case-anniversaries',
-  posterPagePath: '/missing-children-posters',
+  posterPagePath: DEFAULT_POSTER_PAGE_PATH,
   timeframe: 'thisWeek',
   pageSize: 8,
   searchPlaceholder: 'Search',

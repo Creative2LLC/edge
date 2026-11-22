@@ -4,7 +4,7 @@ import {
   readTextField,
 } from '../../scripts/block-field-utils.js';
 import { showSkeleton, clearSkeleton } from '../../scripts/skeleton.js';
-import { buildAmberPosterDetailHref } from '../../scripts/poster-link-utils.js';
+import { buildAmberPosterDetailHref, DEFAULT_POSTER_PAGE_PATH } from '../../scripts/poster-link-utils.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
 
 const DEFAULTS = {
@@ -15,7 +15,7 @@ const DEFAULTS = {
   state: '',
   emptyMessage: 'There are no AMBER Alerts at this time.',
   detailLabel: 'View Poster',
-  posterPagePath: '/missing-children-posters',
+  posterPagePath: DEFAULT_POSTER_PAGE_PATH,
 };
 
 const FIELD_LABELS = {
@@ -174,11 +174,12 @@ function alertName(alert) {
 }
 
 // The live list sends the date as `alertDate` ("Sep 6, 2026 12:00:00 AM") and
-// leaves `missing_date` blank, so read both and drop the midnight timestamp.
+// leaves `missing_date` blank, so read both and drop the midnight timestamp. The detail
+// feed adds a time zone ("11/21/2026 12:00 AM Eastern"), which goes with it.
 function alertDate(alert) {
   return normalizeText(
     alert.alert_date || alert.alertDate || alert.missing_date || alert.missingDate,
-  ).replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?$/i, '');
+  ).replace(/\s+\d{1,2}:\d{2}(:\d{2})?\s*(?:AM|PM)?(?:\s+[a-z]+)?$/i, '');
 }
 
 function amberPosterUrl(alert, posterPagePath) {
@@ -188,7 +189,37 @@ function amberPosterUrl(alert, posterPagePath) {
     personId: personId(alert),
     name: alertName(alert),
     posterPagePath,
+    preview: Boolean(alert.isPreview),
   });
+}
+
+// ?amber_preview=sample shows the built-in sample alert, so the block can be reviewed while
+// no real alert is active (the posters page takes the same parameter). Any other value
+// previews that archived case from the legacy staging feed.
+function previewCaseFromUrl() {
+  return normalizeText(new URLSearchParams(window.location.search).get('amber_preview'));
+}
+
+// A preview comes from the detail feed: one entry per person in the alert. Its cards are the
+// missing children, with the alert-level place and coverage the list feed would carry.
+function previewAlerts(payload) {
+  const bean = payload?.childBean || {};
+  const people = Array.isArray(payload?.data) ? payload.data : [];
+  const isChild = (person) => ['child', 'missingchild'].includes(
+    normalizeText(person.person_type || person.personType).toLowerCase().replace(/[^a-z]/g, ''),
+  );
+  const children = people.filter(isChild);
+  const place = normalizeText(bean.missingFrom)
+    || [bean.lastSeenCity, bean.lastSeenState].map(normalizeText).filter(Boolean).join(', ');
+  const coverage = Array.isArray(bean.targetList)
+    ? bean.targetList.map(normalizeText).filter(Boolean).join('; ')
+    : '';
+  return (children.length ? children : people.slice(0, 1)).map((person) => ({
+    ...person,
+    missing_location: person.missing_location || place,
+    issued_for: person.issued_for || coverage,
+    isPreview: true,
+  }));
 }
 
 function normalizedName(alert) {
@@ -396,12 +427,18 @@ export default async function decorate(block) {
   const list = document.createElement('div');
   list.className = 'amber-alerts-list';
 
+  const previewCase = previewCaseFromUrl();
+  const previewNotice = document.createElement('p');
+  previewNotice.className = 'amber-alerts-preview-notice';
+  previewNotice.setAttribute('role', 'note');
+  previewNotice.hidden = true;
+
   const disclosure = document.createElement('p');
   disclosure.className = 'amber-alerts-disclosure';
   disclosure.textContent = config.disclosure;
 
   if (header.children.length) inner.append(header);
-  inner.append(status, list);
+  inner.append(previewNotice, status, list);
   if (config.disclosure) inner.append(disclosure);
   block.replaceChildren(inner);
 
@@ -438,18 +475,27 @@ export default async function decorate(block) {
     });
 
     try {
-      const url = new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
-      if (stateSelect.value) url.searchParams.set('state', stateSelect.value);
+      const url = previewCase
+        ? new URL(`/api/amber-alerts/preview/${encodeURIComponent(previewCase)}`, `${config.apiBaseUrl}/`)
+        : new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
+      if (stateSelect.value && !previewCase) url.searchParams.set('state', stateSelect.value);
       const response = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json();
+      const feed = await response.json();
       // A failed feed must read as "unavailable", never as "no active alerts".
-      if (Number(payload?.success) !== 1) throw new Error('AMBER feed failed');
+      if (Number(feed?.success) !== 1) throw new Error('AMBER feed failed');
+      const payload = previewCase ? { ...feed, data: previewAlerts(feed) } : feed;
       const alerts = Array.isArray(payload?.data) ? payload.data : [];
+      if (previewCase) {
+        previewNotice.textContent = normalizeText(feed.preview_label)
+          || 'Archived preview - not an active AMBER Alert';
+        previewNotice.hidden = false;
+      }
       await Promise.all(alerts.map(async (alert) => {
-        if (alert.image_url || !caseNumber(alert)) return;
+        // A preview already came from the detail feed, so there is no photo left to find.
+        if (alert.isPreview || alert.image_url || !caseNumber(alert)) return;
         try {
           const detailUrl = new URL(
             `/api/amber-alerts/${encodeURIComponent(caseNumber(alert))}`,

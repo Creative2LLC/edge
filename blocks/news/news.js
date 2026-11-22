@@ -61,6 +61,12 @@ const BLOG_FILTER_PARAM = {
   programs: 'programs[]',
 };
 
+// The View More fields, appended after the blog selects: a mode select whose values are
+// namespaced like theirs, then the page it links to. A published page finds the mode by
+// value; its link is the row right after it.
+const VIEW_MORE_RE = /^news-more-(expand|link)$/;
+const DEFAULT_VIEW_MORE_HREF = '/blog';
+
 // "Pull From Blog" is the last field of an article: image, title, subtitle, link, tags,
 // imageAlt, linkStyle, blog.
 const ITEM_BLOG_CELL_INDEX = 7;
@@ -623,19 +629,36 @@ function renderNews(block, config, articles, { loading = false } = {}) {
   }
 
   // Small cards — remaining articles (or all if no featured). First 3 visible, rest hidden.
+  // When View More links out, the cards past the first 3 are not built at all.
   const startIndex = useFeatured ? 1 : 0;
   const visibleCount = 3;
+  const { viewMore } = config;
+  const lastIndex = viewMore.isLink
+    ? Math.min(articles.length, startIndex + visibleCount)
+    : articles.length;
 
   if (articles.length > startIndex) {
     const ul = document.createElement('ul');
     ul.className = 'news-cards';
-    for (let i = startIndex; i < articles.length; i += 1) {
+    for (let i = startIndex; i < lastIndex; i += 1) {
       const positionInGrid = i - startIndex;
       const hidden = positionInGrid >= visibleCount;
       ul.append(buildSmallCard(articles[i].data, articles[i].row, hidden));
     }
     inner.append(ul);
+  }
 
+  if (viewMore.isLink) {
+    // A link to the blog browser always shows: there is always more to read there.
+    const btnWrapper = document.createElement('div');
+    btnWrapper.className = 'news-button-wrapper';
+    const link = document.createElement('a');
+    link.className = 'news-button';
+    link.href = viewMore.href;
+    link.textContent = config.buttonText;
+    btnWrapper.append(applyButtonStyle(link, 'primary'));
+    inner.append(btnWrapper);
+  } else if (articles.length > startIndex) {
     // View More button — only if there are more small cards than visible
     const smallCardCount = articles.length - startIndex;
     if (smallCardCount > visibleCount) {
@@ -676,6 +699,42 @@ function takeValueField(block, name, pattern) {
   const match = row.textContent.trim().toLowerCase().match(pattern);
   row.remove();
   return match;
+}
+
+/**
+ * Reads the View More mode and link and removes their rows. Linking is opt-in: a block
+ * saved before these fields existed has no mode value and keeps revealing cards in place.
+ */
+function takeViewMore(block) {
+  let mode = '';
+  let href = '';
+  const named = block.querySelector(getFieldSelector('viewMoreMode'));
+  if (named) {
+    mode = named.textContent.trim().toLowerCase();
+    named.remove();
+    const link = readLinkField(block, 'viewMoreLink');
+    href = link.value || '';
+    link.source?.remove();
+  } else {
+    const rows = [...block.children];
+    const index = rows.findIndex(
+      (row) => row.children.length <= 1 && VIEW_MORE_RE.test(row.textContent.trim().toLowerCase()),
+    );
+    if (index >= 0) {
+      mode = rows[index].textContent.trim().toLowerCase();
+      const next = rows[index + 1];
+      if (next && next.children.length <= 1 && !next.querySelector('picture')) {
+        href = next.querySelector('a[href]')?.getAttribute('href') || next.textContent.trim();
+        next.remove();
+      }
+      rows[index].remove();
+    }
+  }
+  const isLink = VIEW_MORE_RE.exec(mode)?.[1] === 'link';
+  return {
+    isLink,
+    href: isLink ? resolveSiteHref(href || DEFAULT_VIEW_MORE_HREF) : '',
+  };
 }
 
 function takeBlogFeed(block) {
@@ -789,6 +848,7 @@ export default function decorate(block) {
   // The blog fields come off first: the appended-style reader below expects the style
   // dropdowns to be the last cells and rows.
   const feed = takeBlogFeed(block);
+  const viewMore = takeViewMore(block);
   takeItemBlogRefs(block);
   // Appended style dropdowns come out of the published markup first; see button-utils.
   takeAppendedStyleCells(block);
@@ -797,7 +857,7 @@ export default function decorate(block) {
     ['headerButtonStyle'],
     [...block.children].filter((row) => row.children.length <= 1 && !row.querySelector('picture')),
   );
-  const config = readConfig(block, headerButtonStyle);
+  const config = { ...readConfig(block, headerButtonStyle), viewMore };
   const articles = collectArticles(block);
 
   const needsBlogs = feed.count > 0 || articles.some(({ data }) => data.blogSlug);

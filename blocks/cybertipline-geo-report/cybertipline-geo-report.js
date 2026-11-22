@@ -22,6 +22,8 @@ const BLOCK_ROW_INDEX = {
   sampleDataMode: 7,
   textMode: 8,
   disclaimerText: 9,
+  // Impact Geo Report only: the CyberTipline model stops at the disclaimer.
+  mapStyle: 10,
 };
 
 const ITEM_COLUMN_INDEX = {
@@ -66,6 +68,9 @@ const REPORT_TYPES = {
     sampleDescription: 'Sample data is enabled for block testing while the Impact Report API has no published dataset.',
     sampleReportTitle: 'Sample Impact Report',
     sourceDataAttribute: 'impactGeoReportSource',
+    // The classic impact map (2026-11-22, client request): state outlines that light up
+    // with a card of the state's counts, and no detail panel. Map Style "shaded" opts out.
+    classicMap: true,
   },
 };
 
@@ -1385,6 +1390,10 @@ export default async function decorate(block) {
   const sampleDataModeField = fieldValue(block, 'sampleDataMode', BLOCK_ROW_INDEX.sampleDataMode, ['sample data mode']);
   const textModeField = fieldValue(block, 'textMode', BLOCK_ROW_INDEX.textMode, ['text mode']);
   const disclaimerField = richField(block, 'disclaimerText', BLOCK_ROW_INDEX.disclaimerText, ['disclaimer text', 'disclaimer']);
+  const mapStyleField = reportConfig.classicMap
+    ? fieldValue(block, 'mapStyle', BLOCK_ROW_INDEX.mapStyle, ['map style'])
+    : { value: '' };
+  const classicMap = Boolean(reportConfig.classicMap) && normalizeToken(mapStyleField.value) !== 'shaded';
 
   const config = {
     ...reportConfig,
@@ -1416,6 +1425,7 @@ export default async function decorate(block) {
 
   block.classList.toggle('is-sample-data', Boolean(sampleDataset));
   block.classList.toggle('cybertipline-geo-report-text-light', normalizeTextMode(textModeField.value) === 'light');
+  block.classList.toggle('is-classic-map', classicMap);
   if (sampleDataset) block.dataset[config.sourceDataAttribute] = 'sample';
   else delete block.dataset[config.sourceDataAttribute];
 
@@ -1465,10 +1475,16 @@ export default async function decorate(block) {
   const disclaimer = buildDisclaimer(disclaimerField);
   if (disclaimer) main.append(disclaimer);
 
-  const side = document.createElement('div');
-  side.className = 'cybertipline-geo-report-side';
-  side.append(detail);
-  body.append(main, side);
+  // The classic map has no detail panel: its hover card carries each state's counts.
+  if (classicMap && mapPanel) {
+    body.classList.add('cybertipline-geo-report-body-list-only');
+    body.append(main);
+  } else {
+    const side = document.createElement('div');
+    side.className = 'cybertipline-geo-report-side';
+    side.append(detail);
+    body.append(main, side);
+  }
   inner.append(body);
   block.replaceChildren(inner);
 

@@ -9,3 +9,112 @@
   --cybertipline-geo-orange-ink: #9a5c13;
   --cybertipline-geo-gold: var(--ncmec-yellow);
 }
+
+/* CLASSIC MAP: the NCMEC impact map the client asked to keep. State outlines drawn straight
+   on the section, a state lighting up orange under the pointer, and a navy card with its
+   Active, Resolved and Total counts in yellow. No detail panel; the map takes the width.
+   Light text mode is the navy section it was made for (white outlines); on a light
+   section the outlines are navy. */
+.impact-geo-report.is-classic-map {
+  --impact-geo-outline: var(--ncmec-navy-dark);
+  --impact-geo-highlight: var(--ncmec-yellow-dark);
+  --impact-geo-card: var(--ncmec-navy-raised);
+  --impact-geo-card-rule: rgb(255 255 255 / 25%);
+  --impact-geo-caption: var(--cybertipline-geo-muted);
+}
+
+.impact-geo-report.is-classic-map.cybertipline-geo-report-text-light {
+  --impact-geo-outline: #fff;
+  --impact-geo-caption: #fff;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-wrap {
+  min-height: 0;
+  padding: 56px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map {
+  width: min(100%, 1100px);
+  min-height: 0;
+  justify-self: center;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map path[data-state],
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map path[data-state].has-data {
+  fill: transparent;
+  stroke: var(--impact-geo-outline);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: none;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map path[data-state].has-data:hover,
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map path[data-state].has-data:focus-visible,
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map path[data-state].is-selected {
+  fill: var(--impact-geo-highlight);
+  stroke: var(--impact-geo-outline);
+  stroke-width: 2;
+  filter: none;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map .us-map-borders {
+  stroke: var(--impact-geo-outline);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-caption {
+  justify-self: center;
+  color: var(--impact-geo-caption);
+  text-align: center;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card {
+  border-color: var(--impact-geo-card-rule);
+  background: var(--impact-geo-card);
+  color: #fff;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 35%);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card::after {
+  background: var(--impact-geo-card);
+  box-shadow: -1px 1px 0 var(--impact-geo-card-rule);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card.is-flipped::after {
+  box-shadow: 1px -1px 0 var(--impact-geo-card-rule);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card h3,
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-metric span:last-child,
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-total {
+  color: #fff;
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card h3,
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-metrics {
+  border-bottom-color: var(--impact-geo-card-rule);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-metric strong,
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-total strong {
+  color: var(--ncmec-yellow);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-icon {
+  border-color: var(--ncmec-yellow);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-person {
+  stroke: var(--ncmec-yellow);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-badge {
+  stroke: var(--ncmec-navy-dark);
+}
+
+.impact-geo-report.is-classic-map .cybertipline-geo-report-map-card-badge circle {
+  fill: var(--ncmec-yellow);
+}

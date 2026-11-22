@@ -765,7 +765,7 @@
     }
   },
   "impact-bar-chart": {
-    "looks": "A heading, intro and a bar chart (single or stacked) of a report dataset loaded from the reports database, with optional values on the bars, an optional data table and fine print.",
+    "looks": "A heading, intro and a column chart (the classic NCMEC impact chart: vertical bars, grouped for several series, log scale for wide ranges) or horizontal bars, of a report dataset loaded from the reports database, with optional values on the bars, an optional data table and fine print.",
     "use": "Only on impact or data report pages, when asked.",
     "on_request": true
   },
@@ -829,7 +829,7 @@
     }
   },
   "impact-geo-report": {
-    "looks": "A US map or world list of impact report counts by state or country, loaded from the reports database.",
+    "looks": "A US map or world list of impact report counts by state or country, loaded from the reports database. The classic map is state outlines that light up with a card of each state's counts; the shaded map colors states by count beside a detail panel.",
     "use": "Only on impact report pages, when asked.",
     "on_request": true
   },
@@ -1018,7 +1018,9 @@
       "button": "Optional 'View More' button under the cards.",
       "blogFeed": "Adds the 3, 4, 6 or 9 newest blogs after any cards you add by hand. Use it instead of adding items when the document asks for the latest posts.",
       "blogFilter": "Limits blogFeed to one area, topic, story type or program, e.g. a topic page's own topic. Empty = any topic.",
-      "featuredMode": "featured shows the first card large; none (default) keeps every card the same size."
+      "featuredMode": "featured shows the first card large; none (default) keeps every card the same size.",
+      "viewMoreMode": "news-more-expand (default) reveals the extra cards in place; news-more-link turns the button into a link and shows only the first cards.",
+      "viewMoreLink": "Only with news-more-link: the page the button opens. Empty = the blog browser (/blog)."
     }
   },
   "news-article": {

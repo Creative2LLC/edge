@@ -15429,14 +15429,23 @@
         "valueType": "string",
         "name": "chartStyle",
         "label": "Chart Style",
+        "description": "Columns are the classic NCMEC impact charts: vertical bars on a value axis, grouped when there are several series.",
         "options": [
           {
-            "name": "Standard",
+            "name": "Columns (classic)",
             "value": ""
           },
           {
-            "name": "Skinny",
+            "name": "Columns, thin",
             "value": "skinny"
+          },
+          {
+            "name": "Horizontal bars",
+            "value": "bars"
+          },
+          {
+            "name": "Horizontal bars, skinny",
+            "value": "bars-skinny"
           }
         ],
         "value": ""
@@ -15515,6 +15524,28 @@
         "name": "disclaimer",
         "label": "Disclaimer Text (Optional)",
         "description": "Optional fine print shown below the chart/table.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "valueScale",
+        "label": "Value Scale",
+        "description": "Columns only. Auto uses a log scale when the tallest bar is 50 or more times the shortest, so small values stay visible, as the classic charts did.",
+        "options": [
+          {
+            "name": "Auto",
+            "value": ""
+          },
+          {
+            "name": "Linear",
+            "value": "linear"
+          },
+          {
+            "name": "Log",
+            "value": "log"
+          }
+        ],
         "value": ""
       }
     ]
@@ -16656,6 +16687,24 @@
         "name": "disclaimerText",
         "label": "Disclaimer Text",
         "description": "Optional text displayed under the map/list area.",
+        "value": ""
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "mapStyle",
+        "label": "Map Style",
+        "description": "Classic is the NCMEC impact map: state outlines that light up, with a card of each state's counts. Shaded colors each state by its count beside a detail panel.",
+        "options": [
+          {
+            "name": "Classic (state outlines)",
+            "value": ""
+          },
+          {
+            "name": "Shaded, with detail panel",
+            "value": "shaded"
+          }
+        ],
         "value": ""
       }
     ]
@@ -19912,6 +19961,31 @@
             "value": "news-filter-programs-40th-anniversary"
           }
         ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "viewMoreMode",
+        "label": "View More Button",
+        "description": "Show more cards here, or link to the blog browser. Linking shows the first cards only, and the button always shows.",
+        "value": "news-more-expand",
+        "options": [
+          {
+            "name": "Show more cards on this page",
+            "value": "news-more-expand"
+          },
+          {
+            "name": "Link to the blog browser",
+            "value": "news-more-link"
+          }
+        ]
+      },
+      {
+        "component": "aem-content",
+        "valueType": "string",
+        "name": "viewMoreLink",
+        "label": "View More Link (Optional)",
+        "description": "Where the View More button goes when it links. Leave blank for the blog browser (/blog)."
       }
     ]
   },

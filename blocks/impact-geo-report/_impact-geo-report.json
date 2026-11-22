@@ -146,6 +146,24 @@
           "label": "Disclaimer Text",
           "description": "Optional text displayed under the map/list area.",
           "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "mapStyle",
+          "label": "Map Style",
+          "description": "Classic is the NCMEC impact map: state outlines that light up, with a card of each state's counts. Shaded colors each state by its count beside a detail panel.",
+          "options": [
+            {
+              "name": "Classic (state outlines)",
+              "value": ""
+            },
+            {
+              "name": "Shaded, with detail panel",
+              "value": "shaded"
+            }
+          ],
+          "value": ""
         }
       ]
     },

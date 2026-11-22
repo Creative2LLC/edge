@@ -1,6 +1,6 @@
 {
   "impact-bar-chart": {
-    "looks": "A heading, intro and a bar chart (single or stacked) of a report dataset loaded from the reports database, with optional values on the bars, an optional data table and fine print.",
+    "looks": "A heading, intro and a column chart (the classic NCMEC impact chart: vertical bars, grouped for several series, log scale for wide ranges) or horizontal bars, of a report dataset loaded from the reports database, with optional values on the bars, an optional data table and fine print.",
     "use": "Only on impact or data report pages, when asked.",
     "on_request": true
   }

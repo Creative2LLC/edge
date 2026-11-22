@@ -35,7 +35,15 @@ const BLOCK_ROW_INDEX = {
   emptyMessage: 11,
   textMode: 12,
   disclaimer: 13,
+  valueScale: 14,
 };
+
+// Rounded axis tops: a value scale ends on one of these times a power of ten.
+const NICE_STEPS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 7.5, 8, 10];
+// Auto switches to a log scale when the tallest bar is this many times the shortest.
+const LOG_SCALE_RATIO = 50;
+// A log axis drops its rounded top label when it would crowd the power of ten below it.
+const MIN_TICK_GAP = 0.05;
 
 const ITEM_COLUMN_INDEX = {
   label: 0,
@@ -202,8 +210,15 @@ function parseMetricKeys(value) {
     .filter(Boolean);
 }
 
-function chartStyleClass(value) {
-  return normalizeText(value).toLowerCase() === 'skinny' ? 'skinny' : 'standard';
+/**
+ * Chart Style. Blank is the classic column chart the client asked to keep (2026-11-22); the
+ * horizontal bars this block drew before are now the opt-in "bars" styles.
+ */
+function chartLayout(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  if (['bars', 'horizontal'].includes(normalized)) return { layout: 'bars', style: 'standard' };
+  if (['bars-skinny', 'horizontal-skinny'].includes(normalized)) return { layout: 'bars', style: 'skinny' };
+  return { layout: 'columns', style: normalized === 'skinny' ? 'skinny' : 'standard' };
 }
 
 function textModeClass(value) {
@@ -572,6 +587,270 @@ function buildChart(rows, config) {
   return list;
 }
 
+/* ---- Columns (the classic impact chart) ---- */
+
+function niceCeil(value) {
+  if (!(value > 0)) return 1;
+  const magnitude = 10 ** Math.floor(Math.log10(value));
+  const step = NICE_STEPS.find((candidate) => candidate * magnitude >= value) ?? 10;
+  return step * magnitude;
+}
+
+function resolveScale(setting, values) {
+  const normalized = normalizeText(setting).toLowerCase();
+  if (normalized === 'log' || normalized === 'linear') return normalized;
+  const positive = values.filter((value) => value > 0);
+  if (positive.length < 2) return 'linear';
+  return Math.max(...positive) / Math.min(...positive) >= LOG_SCALE_RATIO ? 'log' : 'linear';
+}
+
+/**
+ * The value axis: where a value sits (0 = baseline, 1 = top) and the labelled ticks. Linear
+ * steps in four or five round intervals; log puts 0 on the baseline, then each power of ten,
+ * then the rounded top, so a 1 still shows beside a 30,000.
+ */
+function buildAxis(maxValue, scale) {
+  if (scale === 'log') {
+    const top = niceCeil(maxValue);
+    const span = Math.log10(top + 1);
+    const position = (value) => (value > 0 ? Math.min(Math.log10(value + 1) / span, 1) : 0);
+    const ticks = [0];
+    for (let power = 10; power < top; power *= 10) ticks.push(power);
+    if (position(top) - position(ticks[ticks.length - 1]) >= MIN_TICK_GAP) ticks.push(top);
+    return { position, ticks };
+  }
+
+  const step = niceCeil(maxValue / 4);
+  const top = Math.max(Math.ceil(maxValue / step) * step, step);
+  const ticks = [];
+  for (let tick = 0; tick <= top; tick += step) ticks.push(tick);
+  return { position: (value) => Math.max(0, Math.min(value / top, 1)), ticks };
+}
+
+// Navy or white, whichever reads on the bar: for a value label inside an authored colour.
+function inkFor(hex) {
+  const match = normalizeText(hex).match(/^#([0-9a-f]{3}|[0-9a-f]{6})/i);
+  if (!match) return '';
+  const digits = match[1].length === 3 ? match[1].replace(/./g, '$&$&') : match[1];
+  const [r, g, b] = [0, 2, 4].map((index) => {
+    const channel = parseInt(digits.slice(index, index + 2), 16) / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+  return luminance > 0.3 ? 'var(--ncmec-navy-dark)' : '#fff';
+}
+
+// A percent column (e.g. offender-relationship) prints under each value, as "(22%)".
+function rowPercent(row) {
+  const percent = rowNumericValue(row, 'percent');
+  return Number.isFinite(percent) ? `${formatNumber(percent)}%` : '';
+}
+
+/**
+ * Hover and keyboard readout for the columns: the same shared tooltip as the bars. The
+ * chart is one tab stop; the arrow keys step through every bar, group by group.
+ */
+function enableColumnReadout(host, bars) {
+  const live = bars.filter(({ row }) => !row.isAuthoringPlaceholder);
+  if (!live.length) return;
+
+  const tooltip = createChartTooltip(host);
+  let active = null;
+
+  // `reveal` is for the keyboard: a column stepped to off the side of a scrolling chart is
+  // brought into view. A pointer is already on its column, so hover never scrolls.
+  const setActive = (entry, { reveal = false } = {}) => {
+    if (active && active !== entry) active.bar.classList.remove('is-active');
+    active = entry;
+    host.classList.toggle('has-active-bar', Boolean(entry));
+    if (!entry) {
+      tooltip.hide();
+      return;
+    }
+    entry.bar.classList.add('is-active');
+    if (reveal) entry.bar.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    const rect = entry.mark.getBoundingClientRect();
+    const hostRect = host.getBoundingClientRect();
+    tooltip.show({
+      value: entry.display,
+      label: entry.label,
+      color: entry.color,
+      detail: entry.detail,
+    }, rect.left - hostRect.left + (rect.width / 2), rect.top - hostRect.top);
+  };
+
+  live.forEach((entry) => {
+    entry.bar.addEventListener('pointerenter', () => setActive(entry));
+    entry.bar.addEventListener('pointerleave', () => setActive(null));
+  });
+
+  host.tabIndex = 0;
+  host.addEventListener('focus', () => {
+    if (!active) setActive(live[0], { reveal: true });
+  });
+  host.addEventListener('blur', () => setActive(null));
+  host.addEventListener('keydown', (event) => {
+    const step = {
+      ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1,
+    }[event.key];
+    if (event.key === 'Escape') {
+      setActive(null);
+      return;
+    }
+    if (!step) return;
+    event.preventDefault();
+    const current = live.indexOf(active);
+    setActive(
+      live[current < 0 ? 0 : (current + step + live.length) % live.length],
+      { reveal: true },
+    );
+  });
+}
+
+function buildColumns(rows, config) {
+  const { metrics } = config;
+  const series = metrics.length
+    ? metrics
+    : [{ key: config.valueKey, label: '', color: '' }];
+  const valuesFor = (row) => series.map((metric) => rowNumericValue(row, metric.key) ?? 0);
+  const allValues = rows.flatMap(valuesFor);
+  const scale = resolveScale(config.valueScale, allValues);
+  const axis = buildAxis(Math.max(...allValues, 1), scale);
+  const grandTotal = rows.reduce((sum, row) => sum + rowTotal(row, config.valueKey, metrics), 0);
+  const showLabels = config.showValues && !metrics.length;
+  const hasPercent = rows.some((row) => rowPercent(row));
+
+  const host = document.createElement('div');
+  host.className = 'impact-bar-chart-columns';
+  host.classList.add(`is-${scale}-scale`);
+  host.style.setProperty('--impact-bar-chart-series', String(series.length));
+  host.setAttribute('role', 'group');
+  host.setAttribute('aria-label', `Column chart${scale === 'log' ? ' on a log scale' : ''}. Use the arrow keys to read each bar.`);
+
+  const scroller = document.createElement('div');
+  scroller.className = 'impact-bar-chart-columns-scroll';
+  const frame = document.createElement('div');
+  frame.className = 'impact-bar-chart-columns-frame';
+
+  const yAxis = document.createElement('div');
+  yAxis.className = 'impact-bar-chart-axis';
+  yAxis.setAttribute('aria-hidden', 'true');
+  const grid = document.createElement('div');
+  grid.className = 'impact-bar-chart-grid';
+  grid.setAttribute('aria-hidden', 'true');
+  axis.ticks.forEach((tick) => {
+    // A unitless 0-1 fraction: the CSS scales it by the plot height.
+    const at = String(Number(axis.position(tick).toFixed(4)));
+    const label = document.createElement('span');
+    label.className = 'impact-bar-chart-tick';
+    label.textContent = formatNumber(tick);
+    label.style.setProperty('--impact-bar-chart-at', at);
+    yAxis.append(label);
+    const line = document.createElement('span');
+    line.className = tick === 0 ? 'impact-bar-chart-gridline is-baseline' : 'impact-bar-chart-gridline';
+    line.style.setProperty('--impact-bar-chart-at', at);
+    grid.append(line);
+  });
+
+  const plot = document.createElement('div');
+  plot.className = 'impact-bar-chart-plot';
+  plot.style.setProperty('--impact-bar-chart-groups', String(rows.length));
+  plot.append(grid);
+
+  const entries = [];
+  let barIndex = 0;
+  rows.forEach((row, rowIndex) => {
+    const group = document.createElement('div');
+    group.className = 'impact-bar-chart-group';
+    if (row.row) moveInstrumentation(row.row, group);
+    setItemLabel(group, [row.label, row.description]);
+    if (row.isAuthoringPlaceholder) group.classList.add('is-authoring-placeholder');
+
+    const total = rowTotal(row, config.valueKey, metrics);
+    const percent = rowPercent(row);
+    group.setAttribute('role', 'img');
+    group.setAttribute('aria-label', metrics.length
+      ? `${row.label}: ${metrics.map((metric) => `${metric.label} ${formatNumber(rowNumericValue(row, metric.key) ?? 0)}`).join(', ')}`
+      : `${row.label}: ${rowDisplayValue(row, config.valueKey)}${percent ? ` (${percent})` : ''}`);
+
+    const barsBox = document.createElement('div');
+    barsBox.className = 'impact-bar-chart-bars';
+
+    series.forEach((metric, seriesIndex) => {
+      const value = rowNumericValue(row, metric.key) ?? 0;
+      const height = axis.position(value);
+      // The slot is the column's full height: the hover target (a 1 is a sliver) and the
+      // place a short column's value sits above it.
+      const slot = document.createElement('span');
+      slot.className = 'impact-bar-chart-slot';
+      slot.style.setProperty('--impact-bar-chart-height', `${height * 100}%`);
+      slot.style.setProperty('--bar-index', String(barIndex));
+      barIndex += 1;
+      const bar = document.createElement('span');
+      bar.className = 'impact-bar-chart-bar';
+      slot.append(bar);
+
+      const authoredColor = metrics.length ? metric.color : normalizeText(row.color);
+      if (authoredColor) slot.style.setProperty('--impact-bar-chart-bar-color', normalizeColor(authoredColor, seriesIndex));
+
+      if (showLabels) {
+        const label = document.createElement('span');
+        label.className = 'impact-bar-chart-bar-value';
+        label.setAttribute('aria-hidden', 'true');
+        const number = document.createElement('span');
+        number.textContent = rowDisplayValue(row, config.valueKey);
+        label.append(number);
+        if (hasPercent && percent) {
+          const share = document.createElement('span');
+          share.textContent = `(${percent})`;
+          label.append(share);
+        }
+        // A tall column carries its value inside its top, a short one above it. Each sits
+        // in the element it is drawn on, so the site's contrast pass judges it against the
+        // right surface: the column, or the section behind it.
+        const room = hasPercent ? 0.16 : 0.1;
+        if (height < room) {
+          label.classList.add('is-outside');
+          slot.append(label);
+        } else {
+          if (authoredColor) label.style.color = inkFor(authoredColor);
+          bar.append(label);
+        }
+      }
+
+      barsBox.append(slot);
+      entries.push({
+        row,
+        bar: slot,
+        mark: bar,
+        display: formatNumber(value),
+        label: metrics.length ? `${metric.label} · ${row.label}` : row.label,
+        color: authoredColor
+          ? normalizeColor(authoredColor, seriesIndex)
+          : 'var(--impact-bar-chart-bar-fill)',
+        detail: metrics.length
+          ? `${formatChartShare(value, total)} of ${row.label}`
+          : (percent && `${percent} of the total`) || (rows.length > 1 ? `${formatChartShare(value, grandTotal)} of the total` : ''),
+      });
+    });
+
+    const label = document.createElement('p');
+    label.className = 'impact-bar-chart-group-label';
+    label.textContent = row.label;
+    label.setAttribute('aria-hidden', 'true');
+
+    group.append(barsBox, label);
+    group.style.setProperty('--row-index', rowIndex);
+    plot.append(group);
+  });
+
+  frame.append(yAxis, plot);
+  scroller.append(frame);
+  host.append(scroller);
+  enableColumnReadout(host, entries);
+  return host;
+}
+
 function buildTable(rows, config, dataset) {
   const wrap = document.createElement('div');
   const table = document.createElement('table');
@@ -754,6 +1033,7 @@ export default async function decorate(block) {
   const emptyMessageField = readText(block, 'emptyMessage', BLOCK_ROW_INDEX.emptyMessage, ['empty message']);
   const textModeField = readText(block, 'textMode', BLOCK_ROW_INDEX.textMode, ['text mode']);
   const disclaimerField = readRich(block, 'disclaimer', BLOCK_ROW_INDEX.disclaimer, ['disclaimer']);
+  const valueScaleField = readText(block, 'valueScale', BLOCK_ROW_INDEX.valueScale, ['value scale', 'scale']);
   const rows = authoredRows(block);
   const authoredDataset = {
     dataset: {
@@ -773,19 +1053,21 @@ export default async function decorate(block) {
   const displayRows = dataset.rows || rows;
   const metrics = deriveMetrics(dataset, displayRows, parseMetricKeys(metricKeysField.value));
   const tableMode = tableDisplayMode(showTableField.value);
+  const { layout, style } = chartLayout(chartStyleField.value);
   const config = {
     valueKey: normalizeText(valueKeyField.value) || 'value',
     metrics,
     showValues: booleanSelect(showValuesField.value, true),
     tableMode,
     instrumentTable: tableMode === 'table',
+    valueScale: valueScaleField.value,
   };
   config.columns = tableColumns(dataset, config.metrics, config.valueKey);
   const inner = document.createElement('div');
   const header = buildHeader(headingField, introField, dataset);
   const legend = buildLegend(metrics);
 
-  block.classList.add(`impact-bar-chart-style-${chartStyleClass(chartStyleField.value)}`);
+  block.classList.add(`impact-bar-chart-style-${style}`, `impact-bar-chart-layout-${layout}`);
   block.classList.toggle('impact-bar-chart-text-light', textModeClass(textModeField.value) === 'light');
   // Light text is the dark-surface setting, so the Chart / Table tabs take their dark form.
   markButtonSurface(block, textModeClass(textModeField.value) === 'light');
@@ -803,7 +1085,8 @@ export default async function decorate(block) {
   }
 
   if (legend && config.tableMode !== 'table') inner.append(legend);
-  const chart = config.tableMode === 'table' ? null : buildChart(displayRows, config);
+  const buildVisual = layout === 'columns' ? buildColumns : buildChart;
+  const chart = config.tableMode === 'table' ? null : buildVisual(displayRows, config);
   const table = config.tableMode === 'hide' ? null : buildTable(displayRows, config, dataset);
 
   if (config.tableMode === 'toggle') {
