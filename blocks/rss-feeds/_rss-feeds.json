@@ -71,65 +71,72 @@
           "valueType": "string",
           "name": "intro",
           "label": "Intro",
-          "description": "Leave blank to show no intro.",
-          "value": "You can receive missing child alerts in RSS format. To subscribe, copy a feed's link and paste it into your RSS reader."
+          "description": "Leave blank for the standard intro: how to subscribe by copying a feed's link into an RSS reader.",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "notice",
           "label": "Notice",
-          "description": "Shown in a highlighted note under the intro. Leave blank to show no notice.",
-          "value": "These are not AMBER Alerts."
+          "description": "Shown in a highlighted note under the intro. Leave blank for 'These are not AMBER Alerts.'",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "noticeLinkLabel",
           "label": "Notice Link Text",
-          "value": "See active AMBER Alerts"
+          "description": "Leave blank for 'See active AMBER Alerts'.",
+          "value": ""
         },
         {
           "component": "aem-content",
           "valueType": "string",
           "name": "noticeLink",
           "label": "Notice Link",
-          "value": "/amber-alerts"
+          "description": "Leave blank for the AMBER Alerts page (/get-help/amber-alerts).",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "nationalHeading",
           "label": "National Feed Heading",
-          "value": "Missing Children Alert Cases"
+          "description": "Leave blank for 'Missing Children Alert Cases'.",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "nationalText",
           "label": "National Feed Text",
-          "value": "Add this RSS feed to receive alerts when a new missing child is added to our group of missing-children-alert cases."
+          "description": "Leave blank for the standard text about the national feed.",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "nationalLabel",
           "label": "National Feed Link Text",
-          "value": "Missing Children Alerts"
+          "description": "Leave blank for 'Missing Children Alerts'.",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "statesHeading",
           "label": "State Feeds Heading",
-          "value": "Regional Missing Children Alerts"
+          "description": "Leave blank for 'Regional Missing Children Alerts'.",
+          "value": ""
         },
         {
           "component": "text",
           "valueType": "string",
           "name": "statesText",
           "label": "State Feeds Text",
-          "value": "Add these RSS feeds to receive alerts whenever a missing child from the chosen area is posted to NCMEC's website."
+          "description": "Leave blank for the standard text about the state feeds.",
+          "value": ""
         }
       ]
     }

@@ -34,21 +34,36 @@ const ROW = {
 const FEEDS_RE = /^rss-feeds-(all|national|states)$/;
 const LANGUAGE_RE = /^rss-lang-(auto|en|es)$/;
 
-/* Used only by a block with no rows at all. Once the Universal Editor has written the
-   model's defaults, a blank field is the author's choice and shows nothing. */
+const AMBER_PAGE_PATH = '/get-help/amber-alerts';
+
+/* A blank field shows the standard copy in the page's language. The Universal Editor does
+   not write a text field's model default into a newly placed block (only the template's
+   values), so blank is what a new block holds; a translated /es page keeps its blanks and
+   reads in Spanish. Authors replace the copy by typing in the field. */
 const DEFAULTS = {
-  intro: "You can receive missing child alerts in RSS format. To subscribe, copy a feed's link and paste it into your RSS reader.",
-  notice: 'These are not AMBER Alerts.',
-  noticeLinkLabel: 'See active AMBER Alerts',
-  noticeLink: '/amber-alerts',
-  nationalHeading: 'Missing Children Alert Cases',
-  nationalText: 'Add this RSS feed to receive alerts when a new missing child is added to our group of missing-children-alert cases.',
-  nationalLabel: 'Missing Children Alerts',
-  statesHeading: 'Regional Missing Children Alerts',
-  statesText: "Add these RSS feeds to receive alerts whenever a missing child from the chosen area is posted to NCMEC's website.",
+  en: {
+    intro: "You can receive missing child alerts in RSS format. To subscribe, copy a feed's link and paste it into your RSS reader.",
+    notice: 'These are not AMBER Alerts.',
+    noticeLinkLabel: 'See active AMBER Alerts',
+    nationalHeading: 'Missing Children Alert Cases',
+    nationalText: 'Add this RSS feed to receive alerts when a new missing child is added to our group of missing-children-alert cases.',
+    nationalLabel: 'Missing Children Alerts',
+    statesHeading: 'Regional Missing Children Alerts',
+    statesText: "Add these RSS feeds to receive alerts whenever a missing child from the chosen area is posted to NCMEC's website.",
+  },
+  es: {
+    intro: 'Puede recibir alertas de niños desaparecidos en formato RSS. Para suscribirse, copie el enlace de un feed y péguelo en su lector de RSS.',
+    notice: 'Estas no son Alertas AMBER.',
+    noticeLinkLabel: 'Ver las Alertas AMBER activas',
+    nationalHeading: 'Casos de alerta de niños desaparecidos',
+    nationalText: 'Agregue este feed RSS para recibir alertas cuando se agregue un nuevo niño desaparecido a nuestro grupo de casos de alerta.',
+    nationalLabel: 'Alertas de niños desaparecidos',
+    statesHeading: 'Alertas regionales de niños desaparecidos',
+    statesText: 'Agregue estos feeds RSS para recibir alertas cuando se publique en el sitio web del NCMEC un niño desaparecido del área elegida.',
+  },
 };
 
-/* Built-in words follow the page's language; authored fields are translated with the page. */
+/* Built-in words, in the page's language. */
 const STRINGS = {
   en: {
     copy: 'Copy feed link',
@@ -143,30 +158,23 @@ function findRowBase(rows) {
   return at >= ROW.feeds ? at - ROW.feeds : 0;
 }
 
-function readFields(block) {
-  const rows = getBlockRows(block);
-  const authored = rows.length > 0;
-  const base = findRowBase(rows);
+function readFields(block, uiLanguage) {
+  const base = findRowBase(getBlockRows(block));
   const text = (name) => normalizeText(readTextField(block, name, base + ROW[name]).value);
-  const pick = (name) => (authored ? text(name) : DEFAULTS[name]);
-
-  const feeds = text('feeds').toLowerCase().match(FEEDS_RE)?.[1] || 'all';
-  const language = text('language').toLowerCase().match(LANGUAGE_RE)?.[1] || 'auto';
-  const noticeLink = authored
-    ? normalizeText(readLinkField(block, 'noticeLink', base + ROW.noticeLink).value)
-    : DEFAULTS.noticeLink;
+  const defaults = DEFAULTS[uiLanguage];
+  const pick = (name) => text(name) || defaults[name];
 
   return {
-    feeds,
-    language,
+    feeds: text('feeds').toLowerCase().match(FEEDS_RE)?.[1] || 'all',
+    language: text('language').toLowerCase().match(LANGUAGE_RE)?.[1] || 'auto',
     intro: pick('intro'),
     notice: pick('notice'),
-    noticeLinkLabel: pick('noticeLinkLabel') || (noticeLink ? DEFAULTS.noticeLinkLabel : ''),
-    noticeLink,
+    noticeLinkLabel: pick('noticeLinkLabel'),
+    noticeLink: normalizeText(readLinkField(block, 'noticeLink', base + ROW.noticeLink).value)
+      || AMBER_PAGE_PATH,
     nationalHeading: pick('nationalHeading'),
     nationalText: pick('nationalText'),
-    // A link needs words, so this one always falls back.
-    nationalLabel: pick('nationalLabel') || DEFAULTS.nationalLabel,
+    nationalLabel: pick('nationalLabel'),
     statesHeading: pick('statesHeading'),
     statesText: pick('statesText'),
   };
@@ -294,8 +302,8 @@ function createNotice(config) {
 }
 
 export default function decorate(block) {
-  const config = readFields(block);
   const uiLanguage = currentSiteLocale() === 'es' ? 'es' : 'en';
+  const config = readFields(block, uiLanguage);
   const feedLanguage = config.language === 'auto' ? uiLanguage : config.language;
   const strings = STRINGS[uiLanguage];
 
