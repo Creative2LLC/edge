@@ -193,18 +193,31 @@ function amberPosterUrl(alert, posterPagePath) {
   });
 }
 
-// ?amber_preview=sample shows the built-in sample alerts, so the block can be reviewed while
-// no real alert is active (the posters page takes the same parameter). Any other value
-// previews that archived case from the legacy staging feed.
+// ?amber_preview=sample shows one built-in sample alert and ?amber_preview=samples shows all of
+// them, so the block can be reviewed with one alert or several while no real alert is active
+// (the posters page takes `sample` too). Any other value previews that one case: a single
+// sample (SAMPLE-2) or an archived case from the legacy staging feed.
+const ALL_SAMPLES = 'samples';
+
 function previewCaseFromUrl() {
   return normalizeText(new URLSearchParams(window.location.search).get('amber_preview'));
 }
 
-// The sample preview also lists every sample alert (`samples`, each its own detail payload
-// and case), so the block shows several cards. An archived case, or a backend from before
-// the list, is just the one alert.
-function previewPayloads(feed) {
-  return Array.isArray(feed?.samples) && feed.samples.length ? feed.samples : [feed];
+function showsAllSamples(previewCase) {
+  return previewCase.toLowerCase() === ALL_SAMPLES;
+}
+
+// The backend has no `samples` case: its `sample` response carries the full list.
+function previewRequestCase(previewCase) {
+  return showsAllSamples(previewCase) ? 'sample' : previewCase;
+}
+
+// `samples` (each its own detail payload and case) is only read when every sample was asked
+// for. A backend from before the list sends the one alert either way.
+function previewPayloads(feed, allSamples) {
+  return allSamples && Array.isArray(feed?.samples) && feed.samples.length
+    ? feed.samples
+    : [feed];
 }
 
 // A preview comes from the detail feed: one entry per person in the alert. Its cards are the
@@ -483,7 +496,10 @@ export default async function decorate(block) {
 
     try {
       const url = previewCase
-        ? new URL(`/api/amber-alerts/preview/${encodeURIComponent(previewCase)}`, `${config.apiBaseUrl}/`)
+        ? new URL(
+          `/api/amber-alerts/preview/${encodeURIComponent(previewRequestCase(previewCase))}`,
+          `${config.apiBaseUrl}/`,
+        )
         : new URL('/api/amber-alerts', `${config.apiBaseUrl}/`);
       if (stateSelect.value && !previewCase) url.searchParams.set('state', stateSelect.value);
       const response = await fetch(url.toString(), {
@@ -494,7 +510,10 @@ export default async function decorate(block) {
       // A failed feed must read as "unavailable", never as "no active alerts".
       if (Number(feed?.success) !== 1) throw new Error('AMBER feed failed');
       const payload = previewCase
-        ? { ...feed, data: previewPayloads(feed).flatMap(previewAlerts) }
+        ? {
+          ...feed,
+          data: previewPayloads(feed, showsAllSamples(previewCase)).flatMap(previewAlerts),
+        }
         : feed;
       const alerts = Array.isArray(payload?.data) ? payload.data : [];
       if (previewCase) {
