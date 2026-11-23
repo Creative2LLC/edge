@@ -4,7 +4,11 @@
 }
 
 .resource-hero {
-  --resource-hero-min-height: 34rem;
+  /* Fits its content. The 34rem floor was sized for the details panel, and with
+     that hidden (2026-11-22) a title-only hero sat in ~300px of empty wash. A
+     background photo keeps the floor (below) so the image has room, and the
+     Height field still sets an exact minimum (inline, so it wins). */
+  --resource-hero-min-height: auto;
   --resource-hero-overlay-opacity: 0.5;
   --resource-hero-ink: #00264d;
   --resource-hero-muted: var(--ncmec-gray-dark);
@@ -26,7 +30,11 @@
     linear-gradient(135deg, #eefbff 0%, #fff 58%, #f7f2ea 100%);
 }
 
-.resource-hero.resource-hero-variant-compact {
+.resource-hero.resource-hero-has-image {
+  --resource-hero-min-height: 34rem;
+}
+
+.resource-hero.resource-hero-has-image.resource-hero-variant-compact {
   --resource-hero-min-height: 26rem;
 }
 
@@ -63,10 +71,13 @@
     linear-gradient(0deg, rgb(255 255 255 / 86%) 0%, rgb(255 255 255 / 0%) 54%);
 }
 
+/* The top padding clears the floating header; the bottom is a little less, so
+   the space under the last line reads about the same as the space above the
+   breadcrumbs. */
 .resource-hero-content {
   width: min(100%, 1480px);
   margin: 0 auto;
-  padding: clamp(5rem, 8vw, 9rem) clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(5rem, 8vw, 9rem) clamp(1.5rem, 5vw, 4rem) clamp(4rem, 6vw, 6.5rem);
 }
 
 /* The title and intro run to about 70% of the page column, never narrower than
@@ -396,7 +407,9 @@
 }
 
 @media (width <= 760px) {
-  .resource-hero {
+  /* No floor on phones, photo or not (the Height field still applies). */
+  .resource-hero.resource-hero-has-image,
+  .resource-hero.resource-hero-has-image.resource-hero-variant-compact {
     --resource-hero-min-height: auto;
   }
 

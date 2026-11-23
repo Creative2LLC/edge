@@ -12,7 +12,6 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  min-height: 28rem;
   overflow: hidden;
   color: var(--blog-hero-ink);
 
@@ -38,6 +37,12 @@
   object-fit: cover;
 }
 
+/* On the plain wash the hero fits its content; a background photo keeps a
+   minimum height so the image has room, as on the Resource Hero. */
+.blog-hero.has-background {
+  min-height: 28rem;
+}
+
 .blog-hero.has-background::before {
   position: absolute;
   inset: 0;
@@ -51,7 +56,7 @@
 .blog-hero-content {
   width: min(100%, 1480px);
   margin: 0 auto;
-  padding: clamp(5rem, 8vw, 9rem) clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(5rem, 8vw, 9rem) clamp(1.5rem, 5vw, 4rem) clamp(4rem, 6vw, 6.5rem);
 }
 
 /* The title column runs to about 70% of the page column, never narrower than
@@ -288,7 +293,7 @@
 }
 
 @media (width <= 760px) {
-  .blog-hero {
+  .blog-hero.has-background {
     min-height: 0;
   }
 

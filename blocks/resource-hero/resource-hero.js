@@ -1192,6 +1192,9 @@ export default async function decorate(block) {
   applyBlockSettings(block, fields);
 
   const picture = getPicture(block, aemFields, readText(block, aemFields, 'media_imageAlt'));
+  // Only a background photo keeps the hero's minimum height; on the plain wash
+  // the hero fits its content.
+  block.classList.toggle('resource-hero-has-image', Boolean(picture));
   const content = document.createElement('div');
   content.className = 'resource-hero-content';
 
