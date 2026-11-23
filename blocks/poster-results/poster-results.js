@@ -2047,14 +2047,18 @@ function renderAmberPosterDetail(container, meta, payload, sourceAlert, config) 
     detail.append(createAmberRelatedSection(payload, person, caseNumber, 'Associated Child'));
   });
 
-  relatedAmberPeople(payload, alert).forEach((person) => {
-    detail.append(createAmberRelatedSection(
-      payload,
-      person,
-      caseNumber,
-      readablePersonType(person),
-    ));
-  });
+  // The alert's other missing children were just listed as Associated Children; without
+  // this filter a sibling showed a second time under "Missing Child".
+  relatedAmberPeople(payload, alert)
+    .filter((person) => readablePersonType(person) !== 'Missing Child')
+    .forEach((person) => {
+      detail.append(createAmberRelatedSection(
+        payload,
+        person,
+        caseNumber,
+        readablePersonType(person),
+      ));
+    });
 
   detail.append(createDetailFooter({
     ...config,

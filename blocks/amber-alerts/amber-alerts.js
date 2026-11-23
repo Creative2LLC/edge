@@ -193,11 +193,18 @@ function amberPosterUrl(alert, posterPagePath) {
   });
 }
 
-// ?amber_preview=sample shows the built-in sample alert, so the block can be reviewed while
+// ?amber_preview=sample shows the built-in sample alerts, so the block can be reviewed while
 // no real alert is active (the posters page takes the same parameter). Any other value
 // previews that archived case from the legacy staging feed.
 function previewCaseFromUrl() {
   return normalizeText(new URLSearchParams(window.location.search).get('amber_preview'));
+}
+
+// The sample preview also lists every sample alert (`samples`, each its own detail payload
+// and case), so the block shows several cards. An archived case, or a backend from before
+// the list, is just the one alert.
+function previewPayloads(feed) {
+  return Array.isArray(feed?.samples) && feed.samples.length ? feed.samples : [feed];
 }
 
 // A preview comes from the detail feed: one entry per person in the alert. Its cards are the
@@ -486,7 +493,9 @@ export default async function decorate(block) {
       const feed = await response.json();
       // A failed feed must read as "unavailable", never as "no active alerts".
       if (Number(feed?.success) !== 1) throw new Error('AMBER feed failed');
-      const payload = previewCase ? { ...feed, data: previewAlerts(feed) } : feed;
+      const payload = previewCase
+        ? { ...feed, data: previewPayloads(feed).flatMap(previewAlerts) }
+        : feed;
       const alerts = Array.isArray(payload?.data) ? payload.data : [];
       if (previewCase) {
         previewNotice.textContent = normalizeText(feed.preview_label)
