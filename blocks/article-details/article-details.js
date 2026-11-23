@@ -1,7 +1,7 @@
-import { getMetadata } from '../../scripts/aem.js';
 import createRemoteSafePicture from '../../scripts/remote-picture.js';
 import resolveSiteHref from '../../scripts/link-utils.js';
 import { buildListFilterHref } from '../../scripts/list-filter-state.js';
+import { articleTagEntries, fetchArticle, getBlogListingPath } from '../../scripts/blog-article-api.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { applyButtonStyle, markButtonSurface } from '../../scripts/button-utils.js';
 import {
@@ -30,8 +30,6 @@ const resourceDataCache = new Map();
 // Tags live in the backend, not in the authored block — nothing in the AEM
 // model carries them, and adding a field would mean re-authoring every blog.
 // This is the same backend the related-articles block on these pages calls.
-const DEFAULT_API_BASE_URL = 'https://stunning-dust-ntqeawud3dqy.on-vapor.com';
-
 const MAX_HERO_TAGS = 6;
 
 function isDebugEnabled() {
@@ -656,127 +654,14 @@ function getImageField(block, name, resourceData = {}) {
   return null;
 }
 
-function normalizeApiBaseUrl(value) {
-  return normalizeText(value).replace(/\/+$/, '');
-}
-
-/**
- * Where to ask for this article's tags. Page metadata wins, then the
- * related-articles block that sits further down every blog page (its API base
- * is already authored there, so a blog imported before this change still
- * resolves), then the shared default.
- */
-function resolveApiBaseUrl() {
-  const fromMetadata = normalizeApiBaseUrl(getMetadata('article-api-base-url'));
-  if (fromMetadata) return fromMetadata;
-
-  const siblingCell = document.querySelector('.related-articles > div:first-child > div:first-child');
-  const fromSibling = normalizeApiBaseUrl(
-    siblingCell?.querySelector('a')?.getAttribute('href') || siblingCell?.textContent,
-  );
-  if (/^https?:\/\//i.test(fromSibling)) return fromSibling;
-
-  return DEFAULT_API_BASE_URL;
-}
-
-function getArticleSlug(pathname = window.location.pathname) {
-  const segments = normalizeText(pathname)
-    .replace(/[?#].*$/, '')
-    .replace(/\.html$/i, '')
-    .split('/')
-    .filter(Boolean);
-  const slug = segments[segments.length - 1] || '';
-
-  try {
-    return decodeURIComponent(slug);
-  } catch (e) {
-    return slug;
-  }
-}
-
-/**
- * Which listing filter each blog-taxonomy group drives.
- *
- * The same mapping article-list uses for its card pills, and it has to stay
- * that way: both ends have to agree or the link filters the wrong facet. The
- * listing reads these from the URL via readListFilterState and forwards them to
- * the API as areas[] / topics[] / story_types[] / programs[].
- */
-const LISTING_FACET_BY_TAXONOMY_GROUP = {
-  primary_area: 'areas',
-  topic: 'topics',
-  story_type: 'storyTypes',
-  program_series: 'programs',
-};
-
-/**
- * The blog listing this article belongs to.
- *
- * Derived from the path rather than authored, because the block has no listing
- * field and adding one would mean re-authoring 397 pages. A blog lives at
- * <listing>/<year>/<slug>, so everything before the year segment is the
- * listing — which also keeps a localised path (/es/blog/...) pointing at its
- * own listing instead of the English one.
- */
-function getListingPath(pathname = window.location.pathname) {
-  const segments = normalizeText(pathname)
-    .replace(/[?#].*$/, '')
-    .replace(/\.html$/i, '')
-    .split('/')
-    .filter(Boolean);
-
-  const yearIndex = segments.findIndex((segment) => /^\d{4}$/.test(segment));
-  const listing = yearIndex > 0 ? segments.slice(0, yearIndex) : segments.slice(0, -1);
-
-  return listing.length ? `/${listing.join('/')}` : '/about/ncmec-news';
-}
-
-/**
- * The article's own tags, falling back to its blog taxonomy so a blog that was
- * only categorised (and never tagged) still shows something.
- *
- * Each entry carries the facet and value it filters by, not just a label — a
- * tag in the hero is a way back into the listing, so the value has to survive
- * the trip.
- */
 async function fetchArticleTags() {
-  const slug = getArticleSlug();
-  if (!slug) return [];
-
-  try {
-    const response = await fetch(`${resolveApiBaseUrl()}/api/articles/${encodeURIComponent(slug)}`, {
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) return [];
-
-    const payload = await response.json();
-    const article = payload?.data || {};
-    const tags = (article.tags || [])
-      .map((tag) => ({
-        label: normalizeText(tag?.name),
-        facet: 'tags',
-        value: normalizeText(tag?.slug || tag?.name),
-      }))
-      .filter((tag) => tag.label && tag.value);
-    if (tags.length) return tags.slice(0, MAX_HERO_TAGS);
-
-    return (article.blog_taxonomy || [])
-      .map((entry) => ({
-        label: normalizeText(entry?.name),
-        facet: LISTING_FACET_BY_TAXONOMY_GROUP[normalizeText(entry?.group)],
-        value: normalizeText(entry?.slug),
-      }))
-      .filter((entry) => entry.label && entry.facet && entry.value)
-      .slice(0, MAX_HERO_TAGS);
-  } catch (e) {
-    return [];
-  }
+  return articleTagEntries(await fetchArticle(), MAX_HERO_TAGS);
 }
 
 function buildTags(entries) {
   const wrap = document.createElement('div');
   wrap.className = 'article-details-tags';
-  const listingPath = getListingPath();
+  const listingPath = getBlogListingPath();
 
   entries.forEach(({ label, facet, value }) => {
     // A tag with nothing to filter by stays a plain span rather than becoming a
@@ -1297,13 +1182,18 @@ export default async function decorate(block) {
     return;
   }
 
+  // A Blog Hero block on the page replaces this block's own hero (title,
+  // byline, tags, panel), so the blog never shows two. The body is unchanged.
+  const hasBlogHero = Boolean(document.querySelector('main .blog-hero'));
+
   const fragment = document.createDocumentFragment();
-  fragment.append(buildHero(fields));
+  if (hasBlogHero) block.classList.add('is-without-hero');
+  else fragment.append(buildHero(fields));
 
   const body = buildBody(fields);
   if (body) fragment.append(body);
 
   block.replaceChildren(fragment);
 
-  appendHeroTags(block);
+  if (!hasBlogHero) appendHeroTags(block);
 }

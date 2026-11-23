@@ -1,0 +1,298 @@
+/* Blog Hero: the Resource Hero's wash, padding and ~70% title column, with the
+   page Hero's navy side panel to the right. Full bleed, like the Resource Hero. */
+.blog-hero-container .blog-hero-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.blog-hero {
+  --blog-hero-ink: var(--ncmec-navy-dark);
+  --blog-hero-muted: var(--ncmec-gray-dark);
+
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 28rem;
+  overflow: hidden;
+  color: var(--blog-hero-ink);
+
+  /* The Resource Hero's wash, built from palette tokens. */
+  background:
+    radial-gradient(circle at 80% 15%, color-mix(in srgb, var(--ncmec-blue-light) 45%, transparent), transparent 32rem),
+    linear-gradient(135deg, var(--ncmec-blue-tint) 0%, var(--ncmec-white) 58%, var(--ncmec-warm-off-white) 100%);
+}
+
+/* An optional background image sits faintly under a white veil, so the dark
+   title keeps its contrast whatever the photo. */
+.blog-hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.blog-hero-background picture,
+.blog-hero-background img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.blog-hero.has-background::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 94%) 0%, rgb(255 255 255 / 80%) 50%, rgb(255 255 255 / 55%) 100%);
+}
+
+.blog-hero-content {
+  width: min(100%, 1480px);
+  margin: 0 auto;
+  padding: clamp(5rem, 8vw, 9rem) clamp(1.5rem, 5vw, 4rem);
+}
+
+/* The title column runs to about 70% of the page column, never narrower than
+   820px, as on the Resource Hero. */
+.blog-hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, max(70%, 820px));
+  gap: 2rem;
+}
+
+.blog-hero-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+/* Empty slots (no byline yet, no tags) take no gap. */
+.blog-hero-meta-slot:empty,
+.blog-hero-tag-slot:empty {
+  display: none;
+}
+
+.blog-hero-title {
+  margin: 0;
+  color: inherit;
+  overflow-wrap: break-word;
+
+  /* No font-size: a real <h1> takes the global h1 size. */
+}
+
+/* ---- Breadcrumbs (the Resource Hero's) ---- */
+.blog-hero-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  color: var(--ncmec-navy-medium);
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
+}
+
+.blog-hero-breadcrumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.blog-hero-breadcrumbs a:hover,
+.blog-hero-breadcrumbs a:focus-visible {
+  color: var(--ncmec-blue-dark);
+  text-decoration: underline;
+}
+
+.blog-hero-breadcrumbs .separator {
+  color: var(--ncmec-blue-dark);
+}
+
+/* ---- Byline ---- */
+.blog-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  color: var(--blog-hero-muted);
+  font-size: var(--body-sm-size);
+  font-weight: var(--body-weight-bold);
+}
+
+.blog-hero-meta-separator {
+  color: var(--ncmec-gray-medium);
+}
+
+/* ---- Tags (the blog's pills, as in Blog Details) ---- */
+.blog-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.blog-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--ncmec-blue-light);
+  border-radius: 999px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-blue-dark);
+  font-size: var(--caption-size);
+  font-weight: var(--body-weight-bold);
+}
+
+.blog-hero-tag.is-linked {
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+/* Navy Dark on Blue Light, as Blog Details: Blue Dark on it is under AA. */
+.blog-hero-tag.is-linked:hover {
+  transform: translateY(-1px);
+  background: var(--ncmec-blue-light);
+  color: var(--ncmec-navy-dark);
+  box-shadow: 0 8px 18px rgb(0 38 77 / 14%);
+}
+
+.blog-hero-tag.is-linked:focus-visible {
+  outline: 3px solid var(--ncmec-blue-medium);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-hero-tag.is-linked {
+    transition: none;
+  }
+
+  .blog-hero-tag.is-linked:hover {
+    transform: none;
+  }
+}
+
+/* ---- Intro ---- */
+.blog-hero-intro {
+  max-width: 100%;
+  color: var(--blog-hero-muted);
+  font-size: var(--deck-size);
+}
+
+.blog-hero-intro > * {
+  margin: 0;
+}
+
+.blog-hero-intro > * + * {
+  margin-top: 0.6em;
+}
+
+/* ---- Side panel (the page Hero's navy panel) ---- */
+.blog-hero-side-panel {
+  align-self: center;
+  width: 100%;
+  border-radius: 10px;
+  padding: 28px 26px;
+  background: var(--ncmec-navy-dark);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 14%);
+  color: var(--ncmec-white);
+}
+
+/* With only an image, the panel is the image (as the field's help text says). */
+.blog-hero-side-panel.is-image-only {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.blog-hero-side-panel-image {
+  overflow: hidden;
+  margin-bottom: 18px;
+  border-radius: 6px;
+}
+
+.blog-hero-side-panel.is-image-only .blog-hero-side-panel-image {
+  margin-bottom: 0;
+}
+
+.blog-hero-side-panel-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 250px;
+  object-fit: contain;
+}
+
+.blog-hero-side-panel-title {
+  margin: 0;
+  color: var(--ncmec-white);
+}
+
+.blog-hero-side-panel-text,
+.blog-hero-side-panel-footer {
+  margin-top: 14px;
+  color: rgb(255 255 255 / 92%);
+  font-size: var(--body-size);
+  font-weight: var(--body-weight-medium);
+  line-height: var(--caption-line-height);
+}
+
+.blog-hero-side-panel-footer {
+  margin-top: 18px;
+  color: rgb(255 255 255 / 78%);
+  font-size: var(--caption-size);
+}
+
+.blog-hero-side-panel-text > *,
+.blog-hero-side-panel-footer > * {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.blog-hero-side-panel-text > * + * {
+  margin-top: 0.6em;
+}
+
+/* As on the page Hero: the first paragraph is the panel's lead line. */
+.blog-hero-side-panel-text > :first-child {
+  font-size: var(--body-lg-size);
+  font-weight: var(--body-weight-bold);
+}
+
+/* Blue Light on Navy Dark is about 9:1. */
+.blog-hero-side-panel .blog-hero-side-panel-footer a {
+  color: var(--ncmec-blue-light);
+}
+
+.blog-hero-side-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+/* Side by side from 900px: the title keeps ~70%, the panel takes the rest. */
+@media (width >= 900px) {
+  .blog-hero.has-side-panel .blog-hero-layout {
+    grid-template-columns: minmax(0, 7fr) minmax(320px, 3fr);
+    column-gap: 56px;
+  }
+}
+
+@media (width <= 760px) {
+  .blog-hero {
+    min-height: 0;
+  }
+
+  .blog-hero-content {
+    padding-block: 3.5rem;
+  }
+}

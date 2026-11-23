@@ -13,6 +13,7 @@ import { applyAnimatedMarkers } from '../../scripts/animated-marker.js';
 import { resourceSection, taxonomyLabelMap } from '../../scripts/resource-taxonomy.js';
 import { bindGatedLink } from '../../scripts/resource-gate.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
+import { isTopLevelPage } from '../../scripts/link-utils.js';
 
 const AEM_PUBLISH_ASSET_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud.com';
 
@@ -20,6 +21,13 @@ const AEM_PUBLISH_ASSET_ORIGIN = 'https://publish-p171653-e1855116.adobeaemcloud
 // The field, the sync into the backend and the rendering below all stay, so
 // setting this back to true is all it takes to bring the Tags row back.
 const SHOW_TAGS = false;
+
+// 2026-11-22: the whole details panel under the title (Format / Audience /
+// Program / Time and its "More details" disclosure) is hidden on resource pages.
+// Every taxonomy field stays in the model and still syncs to the backend, which
+// is where the Resource Browser's filters and cards get them. Set this back to
+// true to bring the panel back exactly as it was.
+const SHOW_DETAILS_PANEL = false;
 
 const FIELD_INDEX = {
   variant: 0,
@@ -714,6 +722,8 @@ function normalizeHref(href) {
 
 function buildBreadcrumbs(fields) {
   if (fields.showBreadcrumbs !== 'show') return null;
+  // Never on a top-level page (/resources): the trail would be just its name.
+  if (isTopLevelPage()) return null;
 
   const parsed = parseBreadcrumbTrail(fields.breadcrumbs);
   const crumbs = parsed.length ? parsed : buildPathBreadcrumbs();
@@ -1220,7 +1230,7 @@ export default async function decorate(block) {
   const body = buildRichText(fields.bodyField, 'resource-hero-body richtext-preserve-spaces', fields.bodyHtml);
   if (body) main.append(body);
 
-  const taxonomy = buildTaxonomy(fields);
+  const taxonomy = SHOW_DETAILS_PANEL ? buildTaxonomy(fields) : null;
   if (taxonomy) main.append(taxonomy);
 
   const actions = buildActions(fields);

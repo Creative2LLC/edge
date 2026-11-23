@@ -1,0 +1,202 @@
+{
+  "definitions": [
+    {
+      "title": "Blog Hero",
+      "id": "blog-hero",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "Blog Hero",
+              "model": "blog-hero",
+              "showTags": "show",
+              "showBreadcrumbs": "hide"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "blog-hero",
+      "fields": [
+        {
+          "component": "tab",
+          "name": "tabContent",
+          "label": "Content"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heroTitle",
+          "label": "Title",
+          "description": "Leave blank on a blog page to use the blog's own title.",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "heroIntro",
+          "label": "Intro",
+          "description": "Optional. A sentence or two under the title.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "author",
+          "label": "Author",
+          "description": "Leave blank on a blog page to use the blog's author.",
+          "value": ""
+        },
+        {
+          "component": "date-time",
+          "valueType": "date",
+          "name": "heroDate",
+          "label": "Date",
+          "description": "Leave blank on a blog page to use the blog's date.",
+          "displayFormat": "MMMM D, YYYY",
+          "valueFormat": "YYYY-MM-DD"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heroTags",
+          "label": "Tags",
+          "description": "Comma separated. Leave blank on a blog page to show the blog's own tags, which link to the blog listing.",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "showTags",
+          "label": "Show Tags",
+          "options": [
+            {
+              "name": "Show",
+              "value": "show"
+            },
+            {
+              "name": "Hide",
+              "value": "hide"
+            }
+          ],
+          "value": "show"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "showBreadcrumbs",
+          "label": "Show Breadcrumbs",
+          "description": "Never shown on a top-level page such as /resources.",
+          "options": [
+            {
+              "name": "Hide",
+              "value": "hide"
+            },
+            {
+              "name": "Show",
+              "value": "show"
+            }
+          ],
+          "value": "hide"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "breadcrumbs",
+          "label": "Breadcrumb Trail (use > or |)",
+          "description": "Optional. Blank builds the trail from the page path. Use Label::/path to make a crumb a link.",
+          "value": ""
+        },
+        {
+          "component": "tab",
+          "name": "tabBackground",
+          "label": "Background"
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "backgroundImage",
+          "label": "Background Image (Optional)",
+          "description": "Shown faintly behind the pale wash. Leave blank for the plain wash, as on resource pages.",
+          "multi": false
+        },
+        {
+          "component": "tab",
+          "name": "tabPanel",
+          "label": "Side Panel"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "panelTitle",
+          "label": "Side Panel Title",
+          "description": "The navy panel to the right of the title, as on the page Hero. It shows when any panel field is filled.",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "panelText",
+          "label": "Side Panel Text",
+          "description": "The first paragraph shows larger and bold.",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "panelPrimaryText",
+          "label": "Side Panel Primary Button Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "valueType": "string",
+          "name": "panelPrimaryLink",
+          "label": "Side Panel Primary Button Link",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "panelSecondaryText",
+          "label": "Side Panel Secondary Link Text",
+          "value": ""
+        },
+        {
+          "component": "aem-content",
+          "valueType": "string",
+          "name": "panelSecondaryLink",
+          "label": "Side Panel Secondary Link",
+          "value": ""
+        },
+        {
+          "component": "richtext",
+          "valueType": "string",
+          "name": "panelFooterText",
+          "label": "Side Panel Footer Text",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "panelImage",
+          "label": "Side Panel Image (Optional)",
+          "description": "When this is the only panel content, the panel background becomes transparent.",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "panelImageAlt",
+          "label": "Side Panel Image Alt",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

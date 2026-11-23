@@ -230,6 +230,9 @@
           "...": "../blocks/article-details/_article-details.json#/definitions"
         },
         {
+          "...": "../blocks/blog-hero/_blog-hero.json#/definitions"
+        },
+        {
           "...": "../blocks/news/_news.json#/definitions"
         },
         {

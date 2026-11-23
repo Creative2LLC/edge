@@ -58,6 +58,19 @@
     "use": "Only on the blog listing page, when asked.",
     "on_request": true
   },
+  "blog-hero": {
+    "looks": "A blog-style page opening on a pale wash: title in a wide left column with the author, date and tag pills under it, an optional intro, and an optional navy side panel to the right with a heading, text and buttons.",
+    "use": "At the top of a blog page, or any page that should open like a blog. On a blog page the blank title, author, date and tags fill in from the blog itself.",
+    "on_request": true,
+    "fields": {
+      "heroTitle": "The page title; leave blank on a blog page.",
+      "heroIntro": "Optional: one or two sentences under the title.",
+      "heroTags": "Optional comma-separated labels, e.g. 'Prevention, Online Safety'; blank on a blog page shows its own tags.",
+      "panelTitle": "Short side panel heading, e.g. 'Need help now?'. Any side panel field makes the panel show.",
+      "panelText": "One or two short paragraphs; the first shows larger and bold.",
+      "panelPrimaryText": "The panel's main button words, e.g. 'Report to the CyberTipline'."
+    }
+  },
   "button": {
     "looks": "The built-in button.",
     "use": "Only when the author asks for this component by name.",

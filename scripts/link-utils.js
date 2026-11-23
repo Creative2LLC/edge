@@ -95,6 +95,16 @@ export function currentSiteLocale() {
   return currentLocalePrefix().replace(/^\//, '') || 'en';
 }
 
+/**
+ * True on the home page and on a top-level page such as /resources, in either
+ * language (/es/resources too) and on the author tier (/content/edge/...).
+ * A breadcrumb there would be just the page's own name, so heroes never show
+ * one on these pages, whatever the block's Show Breadcrumbs field says.
+ */
+export function isTopLevelPage() {
+  return currentSitePathWithoutLocale().split('/').filter(Boolean).length <= 1;
+}
+
 export function localizedCurrentPageHref(locale = 'en') {
   const normalizedLocale = `${locale || ''}`.trim().toLowerCase();
   const sitePath = currentSitePathWithoutLocale();

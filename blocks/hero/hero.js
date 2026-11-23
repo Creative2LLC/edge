@@ -12,6 +12,7 @@ import {
   markButtonSurface,
   resolveButtonStyle,
 } from '../../scripts/button-utils.js';
+import { isTopLevelPage } from '../../scripts/link-utils.js';
 
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?(#.*)?$/i;
 const IMAGE_EXT_RE = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?(#.*)?$/i;
@@ -1042,13 +1043,19 @@ function normalizeBreadcrumbHref(href) {
   }
 }
 
-async function buildBreadcrumbs(block) {
-  const showBreadcrumbs = normalizeChoice(
+function wantsBreadcrumbs(block) {
+  return normalizeChoice(
     getFieldValue(block, ['content_showBreadcrumbs', 'showBreadcrumbs']).value,
     ['show', 'hide'],
     'hide',
-  );
-  if (showBreadcrumbs !== 'show') return null;
+  ) === 'show';
+}
+
+async function buildBreadcrumbs(block) {
+  if (!wantsBreadcrumbs(block)) return null;
+  // Never on the home page or a top-level page (/resources): the trail would be
+  // just the page's own name. Below that the field still decides.
+  if (isTopLevelPage()) return null;
 
   const configuredTrail = getFieldValue(block, ['content_breadcrumbs', 'breadcrumbs']).value;
   const parsedItems = parseBreadcrumbTrail(configuredTrail);
@@ -2124,7 +2131,10 @@ export default async function decorate(block) {
   block.classList.toggle('hero-no-media', !picture && !videoEl);
 
   const breadcrumb = await buildBreadcrumbs(block);
-  const richText = buildMainRichText(block, resourceRichText, Boolean(breadcrumb));
+  // A trail the author typed into the text is still stripped on a top-level
+  // page, where Show Breadcrumbs is set but the nav is suppressed.
+  const strippedTrail = Boolean(breadcrumb) || (wantsBreadcrumbs(block) && isTopLevelPage());
+  const richText = buildMainRichText(block, resourceRichText, strippedTrail);
   if (richText) {
     applyAccentBrackets(richText);
     applyAnimatedMarkers(richText, markerConfig);

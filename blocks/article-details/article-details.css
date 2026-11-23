@@ -370,6 +370,11 @@
     border-radius: 20px;
   }
 
+  /* With a Blog Hero above it there is no wash of its own to ride up into. */
+  .article-details.is-without-hero .article-details-content {
+    margin-top: 1.5rem;
+  }
+
   /* The card above rides 42px up into the hero, which suits text on the wash
      but would butt a solid panel against it. */
   .article-details .article-details-hero-content.has-side-panel {

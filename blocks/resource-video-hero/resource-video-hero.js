@@ -15,6 +15,11 @@ import {
 } from '../../scripts/resource-gate.js';
 import { applyButtonStyle } from '../../scripts/button-utils.js';
 
+// The program / grade / tag pills under the description are hidden on resource
+// pages, as the Resource Hero's details panel is. The data still comes from the
+// API; set this back to true to show them again.
+const SHOW_TAXONOMY_PILLS = false;
+
 const FIELD_COLUMN_INDEX = {
   apiBaseUrl: 0,
   slug: 1,
@@ -443,8 +448,10 @@ function buildHero(resource, config) {
     section.append(copy);
   }
 
-  // Taxonomy pills
-  const taxonomy = buildTaxonomy(resource, config.listingPath || DEFAULT_LISTING_PATH);
+  // Taxonomy pills: hidden like the Resource Hero's details panel (2026-11-22).
+  const taxonomy = SHOW_TAXONOMY_PILLS
+    ? buildTaxonomy(resource, config.listingPath || DEFAULT_LISTING_PATH)
+    : null;
   if (taxonomy) section.append(taxonomy);
 
   // videoUrl (block override) > API video_url > videoFile (DAM) as fallback player source
