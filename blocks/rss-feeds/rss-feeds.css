@@ -1,0 +1,124 @@
+/* RSS Feeds. Headings and body text come from the site scale; the copy button is the
+   button standard's Secondary style (layout only here). */
+.rss-feeds {
+  display: grid;
+  gap: var(--space-10);
+}
+
+.rss-feeds-intro {
+  margin: 0;
+}
+
+/* "These are not AMBER Alerts." A fixed light note, so its ink is fixed too: on a dark
+   section the page-wide on-dark link colour would otherwise turn its link white. */
+.rss-feeds-notice {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-left: 4px solid var(--ncmec-yellow);
+  border-radius: 0 8px 8px 0;
+  background: var(--ncmec-warm-off-white);
+  color: var(--ncmec-gray-dark);
+}
+
+.rss-feeds-notice a:any-link {
+  color: var(--link-color);
+}
+
+.rss-feeds-notice a:any-link:hover {
+  color: var(--link-hover-color);
+}
+
+.rss-feeds-group {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.rss-feeds-heading,
+.rss-feeds-text {
+  margin: 0;
+}
+
+.rss-feeds-text {
+  max-width: var(--measure);
+}
+
+/* National feed: the link and its copy button on a pale card. */
+.rss-feeds-feature {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-6);
+  margin-top: var(--space-2);
+  padding: var(--space-6);
+  border-radius: 12px;
+  background: var(--ncmec-blue-tint);
+  color: var(--ncmec-navy-dark);
+}
+
+.rss-feeds-feature-link:any-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--link-color);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.rss-feeds-feature-link:any-link:hover {
+  color: var(--link-hover-color);
+}
+
+/* The feed glyph sits on the orange badge feed readers use. Decorative (aria-hidden). */
+.rss-feeds-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  border-radius: 6px;
+  background: var(--ncmec-yellow-dark);
+  fill: var(--ncmec-white);
+  stroke: var(--ncmec-white);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.rss-feeds-icon path {
+  fill: none;
+}
+
+.rss-feeds-icon circle {
+  stroke: none;
+}
+
+/* Sized by .u-body-sm (set in the JS). */
+.rss-feeds-copy-status {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.rss-feeds-copy-status:empty {
+  display: none;
+}
+
+.rss-feeds-copy-url {
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+/* State feeds read down each column in alphabetical order, as on the old page. 10rem fits
+   the longest name ("Distrito de Columbia") and gives two columns on a 390px phone,
+   three on a tablet and four on desktop. */
+.rss-feeds-list {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  columns: 4 10rem;
+  column-gap: var(--space-6);
+}
+
+.rss-feeds-list li {
+  margin: 0;
+  padding-block: var(--space-1);
+  break-inside: avoid;
+}

@@ -411,6 +411,9 @@
         },
         {
           "...": "../blocks/poster-results/_poster-results.json#/definitions"
+        },
+        {
+          "...": "../blocks/rss-feeds/_rss-feeds.json#/definitions"
         }
       ]
     },

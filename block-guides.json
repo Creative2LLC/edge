@@ -1382,6 +1382,16 @@
       "pinned6": "Optional sixth pinned page."
     }
   },
+  "rss-feeds": {
+    "looks": "An intro, a highlighted 'These are not AMBER Alerts' note, the national missing-children-alert feed on a pale card with a copy button, then every state's feed as a list of links in columns.",
+    "use": "Only on the RSS Feeds page. The feed links are built in; authors only adjust the wording.",
+    "on_request": true,
+    "fields": {
+      "feeds": "Which feeds to list: national and state (the usual), national only, or states only.",
+      "language": "Match the page (usual), English or Spanish feeds. Spanish feeds only carry cases with a Spanish poster.",
+      "notice": "Keep a line saying these are not AMBER Alerts, e.g. 'These are not AMBER Alerts.'"
+    }
+  },
   "section-title": {
     "looks": "A section's heading with an optional intro paragraph and an optional button, aligned left, centre or right.",
     "use": "Opening a section whose blocks have no heading of their own, e.g. above a row of cards.",

@@ -1,0 +1,138 @@
+{
+  "definitions": [
+    {
+      "title": "RSS Feeds",
+      "id": "rss-feeds",
+      "plugins": {
+        "xwalk": {
+          "page": {
+            "resourceType": "core/franklin/components/block/v1/block",
+            "template": {
+              "name": "RSS Feeds",
+              "model": "rss-feeds",
+              "feeds": "rss-feeds-all",
+              "language": "rss-lang-auto"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "rss-feeds",
+      "fields": [
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "feeds",
+          "label": "Feeds to Show",
+          "description": "The national feed is NCMEC's featured missing-children-alert cases. State feeds list one link per state and DC.",
+          "options": [
+            {
+              "name": "National and state feeds",
+              "value": "rss-feeds-all"
+            },
+            {
+              "name": "National feed only",
+              "value": "rss-feeds-national"
+            },
+            {
+              "name": "State feeds only",
+              "value": "rss-feeds-states"
+            }
+          ],
+          "value": "rss-feeds-all"
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "language",
+          "label": "Feed Language",
+          "description": "Match the page: Spanish feeds on /es pages, English everywhere else. Spanish feeds only carry cases that have a Spanish poster, so they are shorter.",
+          "options": [
+            {
+              "name": "Match the page",
+              "value": "rss-lang-auto"
+            },
+            {
+              "name": "English",
+              "value": "rss-lang-en"
+            },
+            {
+              "name": "Spanish",
+              "value": "rss-lang-es"
+            }
+          ],
+          "value": "rss-lang-auto"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "intro",
+          "label": "Intro",
+          "description": "Leave blank to show no intro.",
+          "value": "You can receive missing child alerts in RSS format. To subscribe, copy a feed's link and paste it into your RSS reader."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "notice",
+          "label": "Notice",
+          "description": "Shown in a highlighted note under the intro. Leave blank to show no notice.",
+          "value": "These are not AMBER Alerts."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "noticeLinkLabel",
+          "label": "Notice Link Text",
+          "value": "See active AMBER Alerts"
+        },
+        {
+          "component": "aem-content",
+          "valueType": "string",
+          "name": "noticeLink",
+          "label": "Notice Link",
+          "value": "/amber-alerts"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "nationalHeading",
+          "label": "National Feed Heading",
+          "value": "Missing Children Alert Cases"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "nationalText",
+          "label": "National Feed Text",
+          "value": "Add this RSS feed to receive alerts when a new missing child is added to our group of missing-children-alert cases."
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "nationalLabel",
+          "label": "National Feed Link Text",
+          "value": "Missing Children Alerts"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "statesHeading",
+          "label": "State Feeds Heading",
+          "value": "Regional Missing Children Alerts"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "statesText",
+          "label": "State Feeds Text",
+          "value": "Add these RSS feeds to receive alerts whenever a missing child from the chosen area is posted to NCMEC's website."
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
