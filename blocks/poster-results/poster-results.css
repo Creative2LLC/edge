@@ -332,11 +332,26 @@
   align-items: stretch;
 }
 
-/* The poster grid and the Active AMBER Alerts grid share one card layout (client,
-   2026-11-24: "match both"). Keep this card in step with .amber-alerts-card. */
+/* The poster grid and the Active AMBER Alerts grid share one card (client, 2026-11-24:
+   "match both"). Keep this card in step with .amber-alerts-card.
+
+   The card lays itself out from its OWN width (a container query), not the window's,
+   so it reads the same in a phone list, a two-up tablet grid and a wide desktop row:
+   - 520px and wider (measured inside the padding): the photo beside the name, the
+     details and the link;
+   - 260-519px: the photo beside the name and details, the link across the bottom;
+   - under 260px: the photo on top.
+   The photo is an inset 4:5 box (the shape NCMEC's photos come in, 400x500), sized
+   from the card's width and never from the text. A long name or place makes the card
+   taller; it can't crop the face or push the photo over the details. */
 .poster-results-card {
+  container: child-card / inline-size;
   display: grid;
-  grid-template-columns: clamp(168px, 34%, 240px) minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  column-gap: clamp(14px, 0.8vw + 10px, 24px);
+  align-items: center;
+  padding: clamp(14px, 0.8vw + 10px, 22px);
   overflow: hidden;
   border: 0;
   border-radius: 14px;
@@ -345,22 +360,20 @@
 }
 
 .poster-results-card.no-photo {
-  grid-template-columns: 1fr;
-  padding: 24px 26px 22px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
-/* The photo box is 4:5, the shape NCMEC's photos come in (400x500 for nearly all of
-   them), so a photo shows whole. It used to take the height of the text beside it,
-   which squeezed it into a narrow strip on phones. It only grows past 4:5 when the
-   text runs taller; cover then trims the sides, never the face. */
 .poster-results-photo {
   position: relative;
   display: block;
-  align-self: stretch;
+  grid-column: 1;
+  grid-row: 1 / -1;
+  width: clamp(160px, 34cqi, 240px);
   aspect-ratio: 4 / 5;
-  min-height: 0;
+  overflow: hidden;
   padding: 0;
   border: 0;
+  border-radius: 8px;
   background: #dfe5e9;
   cursor: pointer;
 }
@@ -378,19 +391,16 @@
 .poster-results-card-body {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 24px 26px 22px;
+  grid-column: -2 / -1;
+  grid-row: 1 / -1;
   min-width: 0;
-}
-
-.poster-results-card.no-photo .poster-results-card-body {
-  padding: 0;
 }
 
 /* A result card's name is an h3 in the outline, sized by the client's card spec
    (26px); the global h3 (36px) was too big. */
 .poster-results-card-body h3 {
   margin: 0 0 8px;
+  overflow-wrap: break-word;
   color: #243846;
   font-size: var(--child-card-name-size);
 }
@@ -405,10 +415,12 @@
   text-decoration: underline;
 }
 
+/* Label | value rows. A value wraps between words; only a single word longer than the
+   whole column (never a date or a city) is broken. */
 .poster-results-card-body dl {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px 4px;
+  gap: 8px 6px;
   margin: 0;
 }
 
@@ -429,14 +441,82 @@
   font-size: var(--child-card-text-size);
   line-height: 1.25;
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .poster-results-card-actions {
   display: flex;
   align-items: center;
   margin-top: 18px;
-  padding-top: 18px;
+}
+
+/* 260-519px inside the padding (phones, two-up tablet rows): the photo is smaller and
+   the details stack, label over value, so a value never wraps a word at a time beside
+   its label. The body steps aside (display: contents) so the link runs under the photo. */
+@container child-card (width < 520px) {
+  .poster-results-photo {
+    grid-row: 1 / 3;
+    align-self: start;
+    width: clamp(96px, 34cqi, 170px);
+  }
+
+  .poster-results-card-body:not(.skeleton-body) {
+    display: contents;
+  }
+
+  .poster-results-card-body h3 {
+    grid-column: -2 / -1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .poster-results-card-body dl {
+    display: block;
+    grid-column: -2 / -1;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  .poster-results-card-body dd {
+    margin-bottom: 10px;
+  }
+
+  .poster-results-card-body dd:last-child {
+    margin-bottom: 0;
+  }
+
+  .poster-results-card-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}
+
+/* Under 260px (the narrowest phones): the photo goes on top at the card's full width,
+   still 4:5, with everything else under it. */
+@container child-card (width < 260px) {
+  .poster-results-photo {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .poster-results-card .poster-results-card-body {
+    display: flex;
+    grid-column: 1 / -1;
+    grid-row: 2 / -1;
+    align-self: stretch;
+  }
+
+  .poster-results-card-body h3,
+  .poster-results-card-body dl {
+    align-self: stretch;
+  }
+
+  .poster-results-card-actions {
+    margin-top: auto;
+    padding-top: 18px;
+  }
 }
 
 /* Card link: the Text link style from the button standard. */
@@ -1239,61 +1319,6 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
 
   .poster-results-qr {
     font-size: var(--body-size);
-  }
-
-  /* Phones: the photo stays beside the details, as on the old site, as an inset 4:5
-     thumbnail. Stacked on top it became a wide strip that showed only a forehead. */
-  .poster-results-card {
-    grid-template-columns: clamp(96px, 32%, 132px) minmax(0, 1fr);
-    gap: 14px;
-    align-items: start;
-    padding: 14px;
-  }
-
-  .poster-results-photo {
-    align-self: start;
-    overflow: hidden;
-    border-radius: 8px;
-  }
-
-  .poster-results-card-body {
-    padding: 0;
-  }
-
-  /* "Label: value" flows as text that wraps, so the 18px details fit the narrow column. */
-  .poster-results-card-body dl {
-    display: block;
-  }
-
-  .poster-results-card-body dt,
-  .poster-results-card-body dd {
-    display: inline;
-  }
-
-  /* The label never splits ("Missing" / "From:"); only the value wraps. */
-  .poster-results-card-body dt {
-    white-space: nowrap;
-  }
-
-  /* A value moves to the next line whole. The space is a real break point: with only a
-     margin there, "From:San" was one unbreakable run and split after the S. */
-  .poster-results-card-body dd {
-    overflow-wrap: break-word;
-  }
-
-  .poster-results-card-body dd::before {
-    content: ' ';
-  }
-
-  /* The same 18px step to the link as the AMBER card's button. */
-  .poster-results-card-actions {
-    margin-top: 0;
-  }
-
-  .poster-results-card-body dd::after {
-    content: '';
-    display: block;
-    margin-bottom: 6px;
   }
 
 .poster-results-detail-layout,
