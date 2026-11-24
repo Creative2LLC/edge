@@ -3,8 +3,10 @@
   padding: 72px 0 76px;
 }
 
+/* Same width as the poster search block (.poster-results-inner), so the two grids line
+   up card for card. */
 .amber-alerts-inner {
-  width: min(1400px, calc(100% - 64px));
+  width: min(1500px, calc(100% - 96px));
   margin: 0 auto;
 }
 
@@ -23,8 +25,7 @@
   margin-bottom: 34px;
 }
 
-.amber-alerts-eyebrow,
-.amber-alerts-card-badge {
+.amber-alerts-eyebrow {
   margin: 0 0 14px;
   color: #b42318;
   font-weight: 900;
@@ -121,13 +122,13 @@
   display: none;
 }
 
-/* auto-fill (not auto-fit) keeps the empty column, so a lone alert stays
-   one column wide instead of stretching across the whole row. */
+/* The same two tracks as .poster-results-list. The second column stays when it is
+   empty, so a lone alert is one card wide instead of stretching across the row. */
 .amber-alerts-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
-  gap: 24px;
-  width: min(1280px, 100%);
+  grid-template-columns: repeat(2, minmax(380px, 1fr));
+  gap: 24px 28px;
+  align-items: stretch;
 }
 
 .amber-alerts-card,
@@ -139,27 +140,34 @@
   box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
 }
 
+/* One card layout for both missing-child grids (client, 2026-11-24: "match both").
+   Keep this card in step with .poster-results-card. */
 .amber-alerts-card {
   display: grid;
-  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
-  min-height: 230px;
+  grid-template-columns: clamp(168px, 34%, 240px) minmax(0, 1fr);
   border: 0;
   border-radius: 14px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 7%);
 }
 
 .amber-alerts-card.is-no-media {
   grid-template-columns: 1fr;
 }
 
+/* A 4:5 photo box: the shape NCMEC's photos come in, so the child shows whole. It only
+   grows past 4:5 when the text runs taller; cover then trims the sides, not the face. */
 .amber-alerts-card-media {
+  position: relative;
   display: block;
-  height: 100%;
-  min-height: 230px;
+  align-self: stretch;
+  aspect-ratio: 4 / 5;
+  min-height: 0;
   background: var(--ncmec-gray-lightest);
 }
 
 .amber-alerts-card-media img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -171,12 +179,15 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
+  justify-content: center;
   padding: 24px 26px 22px;
 }
 
+/* The client's card spec: a 26px name (the global h3 is 36px). */
 .amber-alerts-card h3 {
   margin: 0 0 8px;
   color: #243846;
+  font-size: var(--child-card-name-size);
 }
 
 /* Same linked-name treatment as the poster search result cards. */
@@ -212,7 +223,7 @@
 /* Label/value type matches .poster-results-card-body dt/dd. */
 .amber-alerts-card dt {
   color: #3f4a52;
-  font-size: var(--body-lg-size);
+  font-size: var(--child-card-text-size);
   font-weight: var(--body-weight-medium);
   line-height: 1.25;
 }
@@ -232,7 +243,7 @@
   margin: 0;
   overflow-wrap: anywhere;
   color: #3f4a52;
-  font-size: var(--body-lg-size);
+  font-size: var(--child-card-text-size);
   line-height: 1.25;
 }
 
@@ -249,7 +260,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: auto;
   padding-top: 18px;
 }
 
@@ -389,17 +399,82 @@
   outline-offset: 2px;
 }
 
+/* The grid steps down where the poster grid does: full width at 1100px, one column at
+   900px, and the phone card at 700px. */
+@media (width <= 1100px) {
+  .amber-alerts-inner {
+    width: 100%;
+  }
+}
+
+@media (width <= 900px) {
+  .amber-alerts-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 700px) {
+  /* Phones: the photo stays beside the details, as on the old site, as an inset 4:5
+     thumbnail. Stacked on top it became a wide strip that showed only a forehead. */
+  .amber-alerts-card {
+    grid-template-columns: clamp(96px, 32%, 132px) minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 14px;
+  }
+
+  .amber-alerts-card-media {
+    align-self: start;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .amber-alerts-card-body {
+    padding: 0;
+  }
+
+  /* "Label: value" flows as text that wraps, so the 18px details fit the narrow column. */
+  .amber-alerts-card dl {
+    display: block;
+  }
+
+  .amber-alerts-card dt,
+  .amber-alerts-card dd {
+    display: inline;
+  }
+
+  /* The label never splits ("Missing" / "From:"); only the value wraps. */
+  .amber-alerts-card dt {
+    white-space: nowrap;
+  }
+
+  /* A value moves to the next line whole. The space is a real break point: with only a
+     margin there, "From:San" was one unbreakable run and split after the S. */
+  .amber-alerts-card dd {
+    overflow-wrap: break-word;
+  }
+
+  .amber-alerts-card dd::before {
+    content: ' ';
+  }
+
+  .amber-alerts-card dd::after {
+    content: '';
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .amber-alerts-card-actions,
+  .amber-alerts-card-actions a {
+    width: 100%;
+  }
+}
+
 @media (width <= 800px) {
   .amber-alerts {
     padding: 36px 0 44px;
   }
 
-  .amber-alerts-inner {
-    width: min(1400px, calc(100% - 24px));
-  }
-
-.amber-alerts-list,
-  .amber-alerts-card,
   .amber-alerts-detail-body {
     grid-template-columns: 1fr;
   }
@@ -408,23 +483,9 @@
     min-width: 0;
   }
 
-  .amber-alerts-card {
-    min-height: 0;
-  }
-
-  .amber-alerts-card-media img {
-    max-height: 280px;
-  }
-
-  /* Cards keep "Label: value" on one line on mobile, like the poster cards. */
   .amber-alerts-detail dl {
     grid-template-columns: 1fr;
     gap: 6px;
-  }
-
-  .amber-alerts-card-actions,
-  .amber-alerts-card-actions a {
-    width: 100%;
   }
 
   .amber-alerts-related-grid {

@@ -131,6 +131,12 @@
      with an 18 description (--body-size) and the 16 text link. Use .u-card-title. */
   --card-title-size: 1.5rem; /* 24px */
 
+  /* Missing-child result cards (the poster search grid and Active AMBER Alerts) share one
+     client spec (2026-11-24): a 26 name over 18 detail rows, at every width, so the two
+     grids read the same on desktop, iPad and phone. */
+  --child-card-name-size: 1.625rem; /* 26px */
+  --child-card-text-size: 1.125rem; /* 18px */
+
   /* Per-level weight / leading. No level uses negative tracking. */
   --heading-weight: 700;
 

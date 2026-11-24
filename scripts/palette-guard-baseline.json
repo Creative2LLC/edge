@@ -16,7 +16,7 @@
  "blocks/amber-alerts/amber-alerts.css|.amber-alerts-detail-media|background|#DFE5E9",
  "blocks/amber-alerts/amber-alerts.css|.amber-alerts-disclosure|color|#304656",
  "blocks/amber-alerts/amber-alerts.css|.amber-alerts-empty|border|#D9E1E6",
- "blocks/amber-alerts/amber-alerts.css|.amber-alerts-eyebrow, .amber-alerts-card-badge|color|#B42318",
+ "blocks/amber-alerts/amber-alerts.css|.amber-alerts-eyebrow|color|#B42318",
  "blocks/amber-alerts/amber-alerts.css|.amber-alerts-filter select|border|#C7D1D8",
  "blocks/amber-alerts/amber-alerts.css|.amber-alerts-filter select|color|#243846",
  "blocks/amber-alerts/amber-alerts.css|.amber-alerts-filter span|color|#3F4B53",

@@ -85,8 +85,31 @@ const STATES = [
   ['WY', 'Wyoming'],
 ];
 
+const STATE_CODES = new Map(
+  STATES.filter(([code]) => code).map(([code, name]) => [name.toLowerCase(), code]),
+);
+
 function normalizeText(value) {
   return `${value || ''}`.trim();
+}
+
+// "Issued For" shows state abbreviations, as the old site's alert table did ("TN"). The
+// list feed already sends them. The detail feed behind a preview sends coverage areas
+// ("Virginia: Statewide"), which become "VA". Anything else is kept as sent.
+function issuedForText(value) {
+  const areas = normalizeText(value).split(/\s*[;,]\s*/).map((part) => {
+    const area = normalizeText(part.split(':')[0]);
+    if (/^[a-z]{2}$/i.test(area)) return area.toUpperCase();
+    return STATE_CODES.get(area.toLowerCase()) || area;
+  }).filter(Boolean);
+  return [...new Set(areas)].join(', ');
+}
+
+// "Missing From" is City, State: a trailing country is dropped, as on the poster cards.
+function missingFromText(alert) {
+  return normalizeText(alert.missing_location || alert.missingLocation)
+    .replace(/,\s*(?:US|USA|United States)$/i, '')
+    .trim();
 }
 
 function normalizeApiBaseUrl(value) {
@@ -309,10 +332,6 @@ function createAlertCard(alert, config) {
   const body = document.createElement('div');
   body.className = 'amber-alerts-card-body';
 
-  const badge = document.createElement('p');
-  badge.className = 'amber-alerts-card-badge';
-  badge.textContent = 'AMBER Alert';
-
   const posterUrl = amberPosterUrl(alert, config.posterPagePath);
   const title = document.createElement('h3');
   if (posterUrl) {
@@ -327,12 +346,13 @@ function createAlertCard(alert, config) {
     title.textContent = alertName(alert);
   }
 
+  // The client's card (2026-11-24): no AMBER Alert label and no case number, and the
+  // alert date comes last.
   const details = document.createElement('dl');
   appendDetailRows(details, [
+    ['Missing From', missingFromText(alert)],
+    ['Issued For', issuedForText(alert.issued_for || alert.issuedFor)],
     ['Alert Date', alertDate(alert)],
-    ['Case', caseNumber(alert)],
-    ['Missing From', alert.missing_location || alert.missingLocation],
-    ['Issued For', alert.issued_for || alert.issuedFor],
   ]);
 
   const actions = document.createElement('div');
@@ -348,7 +368,7 @@ function createAlertCard(alert, config) {
     actions.append(applyButtonStyle(poster, 'emergency'));
   }
 
-  body.append(badge, title, details);
+  body.append(title, details);
   if (actions.children.length) body.append(actions);
   card.append(body);
   return card;
@@ -490,7 +510,7 @@ export default async function decorate(block) {
       item: 'amber-alerts-card',
       media: 'amber-alerts-card-media',
       body: 'amber-alerts-card-body',
-      lines: ['pill', 'title', 'text', 'text-sm', 'button'],
+      lines: ['title', 'text', 'text-sm', 'button'],
       label: 'Loading active AMBER Alerts',
     });
 

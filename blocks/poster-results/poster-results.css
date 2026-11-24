@@ -332,10 +332,11 @@
   align-items: stretch;
 }
 
+/* The poster grid and the Active AMBER Alerts grid share one card layout (client,
+   2026-11-24: "match both"). Keep this card in step with .amber-alerts-card. */
 .poster-results-card {
   display: grid;
-  grid-template-columns: minmax(168px, 34%) minmax(0, 1fr);
-  min-height: 230px;
+  grid-template-columns: clamp(168px, 34%, 240px) minmax(0, 1fr);
   overflow: hidden;
   border: 0;
   border-radius: 14px;
@@ -348,11 +349,16 @@
   padding: 24px 26px 22px;
 }
 
+/* The photo box is 4:5, the shape NCMEC's photos come in (400x500 for nearly all of
+   them), so a photo shows whole. It used to take the height of the text beside it,
+   which squeezed it into a narrow strip on phones. It only grows past 4:5 when the
+   text runs taller; cover then trims the sides, never the face. */
 .poster-results-photo {
+  position: relative;
   display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 230px;
+  align-self: stretch;
+  aspect-ratio: 4 / 5;
+  min-height: 0;
   padding: 0;
   border: 0;
   background: #dfe5e9;
@@ -360,10 +366,11 @@
 }
 
 .poster-results-photo img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 230px;
   object-fit: cover;
   object-position: center top;
 }
@@ -380,12 +387,12 @@
   padding: 0;
 }
 
-/* A result card's name is an h3 in the outline but sized as H4 (25px), the card-heading
-   size the client set for the poster grid; the global h3 (36px) was too big. */
+/* A result card's name is an h3 in the outline, sized by the client's card spec
+   (26px); the global h3 (36px) was too big. */
 .poster-results-card-body h3 {
   margin: 0 0 8px;
   color: #243846;
-  font-size: var(--heading-4-size);
+  font-size: var(--child-card-name-size);
 }
 
 .poster-results-card-title-link {
@@ -407,7 +414,7 @@
 
 .poster-results-card-body dt {
   color: #3f4a52;
-  font-size: var(--body-lg-size);
+  font-size: var(--child-card-text-size);
   font-weight: var(--body-weight-medium);
   line-height: 1.25;
 }
@@ -419,7 +426,7 @@
 .poster-results-card-body dd {
   margin: 0;
   color: #3f4a52;
-  font-size: var(--body-lg-size);
+  font-size: var(--child-card-text-size);
   line-height: 1.25;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -1234,16 +1241,59 @@ body.poster-results-direct-page main > .section:not(.poster-results-direct-secti
     font-size: var(--body-size);
   }
 
+  /* Phones: the photo stays beside the details, as on the old site, as an inset 4:5
+     thumbnail. Stacked on top it became a wide strip that showed only a forehead. */
   .poster-results-card {
-    grid-template-columns: 116px minmax(0, 1fr);
+    grid-template-columns: clamp(96px, 32%, 132px) minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 14px;
   }
 
   .poster-results-photo {
-    min-height: 180px;
+    align-self: start;
+    overflow: hidden;
+    border-radius: 8px;
   }
 
   .poster-results-card-body {
-    padding: 14px;
+    padding: 0;
+  }
+
+  /* "Label: value" flows as text that wraps, so the 18px details fit the narrow column. */
+  .poster-results-card-body dl {
+    display: block;
+  }
+
+  .poster-results-card-body dt,
+  .poster-results-card-body dd {
+    display: inline;
+  }
+
+  /* The label never splits ("Missing" / "From:"); only the value wraps. */
+  .poster-results-card-body dt {
+    white-space: nowrap;
+  }
+
+  /* A value moves to the next line whole. The space is a real break point: with only a
+     margin there, "From:San" was one unbreakable run and split after the S. */
+  .poster-results-card-body dd {
+    overflow-wrap: break-word;
+  }
+
+  .poster-results-card-body dd::before {
+    content: ' ';
+  }
+
+  /* The same 18px step to the link as the AMBER card's button. */
+  .poster-results-card-actions {
+    margin-top: 0;
+  }
+
+  .poster-results-card-body dd::after {
+    content: '';
+    display: block;
+    margin-bottom: 6px;
   }
 
 .poster-results-detail-layout,
