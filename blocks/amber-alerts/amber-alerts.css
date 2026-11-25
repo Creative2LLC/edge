@@ -141,10 +141,10 @@
 }
 
 /* One card for both missing-child grids (client, 2026-11-24: "match both"). Keep this
-   card in step with .poster-results-card, which explains the layout: it follows the
-   card's own width inside its padding (520px+ photo beside everything; 260-519px link
-   across the bottom; under 260px photo on top), and the inset 4:5 photo is sized from
-   the card, never from the text, so it can't crop a face or run over the details. */
+   card in step with .poster-results-card, which explains the layout: the photo is one
+   fixed size (--child-card-photo-width) at every width, and the card's own width inside
+   its padding decides where the text goes (560px+ beside the photo; 504-559px beside it
+   with the button across the bottom; under 504px under the photo). */
 .amber-alerts-card {
   container: child-card / inline-size;
   display: grid;
@@ -167,7 +167,7 @@
   display: block;
   grid-column: 1;
   grid-row: 1 / -1;
-  width: clamp(160px, 34cqi, 240px);
+  width: var(--child-card-photo-width);
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 8px;
@@ -273,13 +273,12 @@
   margin-top: 18px;
 }
 
-/* 260-519px cards: smaller photo, details stacked label over value, and the button
-   across the bottom of the card (the body steps aside with display: contents). */
-@container child-card (width < 520px) {
+/* Under 560px: the button runs across the bottom of the card (the body steps aside with
+   display: contents), under the photo. */
+@container child-card (width < 560px) {
   .amber-alerts-card-media {
     grid-row: 1 / 3;
     align-self: start;
-    width: clamp(96px, 34cqi, 170px);
   }
 
   .amber-alerts-card-body:not(.skeleton-body) {
@@ -293,18 +292,9 @@
   }
 
   .amber-alerts-card dl {
-    display: block;
     grid-column: -2 / -1;
     grid-row: 2;
     align-self: start;
-  }
-
-  .amber-alerts-card dd {
-    margin-bottom: 10px;
-  }
-
-  .amber-alerts-card dd:last-child {
-    margin-bottom: 0;
   }
 
   .amber-alerts-card-actions {
@@ -317,13 +307,39 @@
   }
 }
 
-/* Under 260px: the photo on top at the card's full width, still 4:5. */
-@container child-card (width < 260px) {
+/* Each label above its value wherever the text column is too narrow for label | value:
+   beside the photo at 504-559px, and on the narrowest phones once the text is under it. */
+@container child-card (504px <= width < 560px) or (width < 300px) {
+  .amber-alerts-card dl {
+    display: block;
+  }
+
+  .amber-alerts-card dd {
+    margin-bottom: 10px;
+  }
+
+  .amber-alerts-card dd:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Under 504px there is no room for the text beside a full-size photo (240 + gap + a
+   240px column), so the text wraps under it. The photo keeps its size; only a card
+   narrower than the photo itself scales it down to fit. */
+@container child-card (width < 504px) {
   .amber-alerts-card-media {
     grid-column: 1 / -1;
     grid-row: 1;
-    width: 100%;
+    width: min(var(--child-card-photo-width), 100%);
     margin-bottom: 16px;
+  }
+
+  /* Phones (one card per row): the photo is centred over the text. Two-up desktop rows
+     that also put the text under the photo keep it on the text's left edge. */
+  @media (width <= 900px) {
+    .amber-alerts-card-media {
+      justify-self: center;
+    }
   }
 
   .amber-alerts-card .amber-alerts-card-body {

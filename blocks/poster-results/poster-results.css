@@ -335,15 +335,18 @@
 /* The poster grid and the Active AMBER Alerts grid share one card (client, 2026-11-24:
    "match both"). Keep this card in step with .amber-alerts-card.
 
+   The photo is the card's standout (client, 2026-11-25): an inset 4:5 box (the shape
+   NCMEC's photos come in, 400x500) at one fixed size, --child-card-photo-width, on
+   every screen. It never shrinks to make room for text; the text wraps instead.
    The card lays itself out from its OWN width (a container query), not the window's,
    so it reads the same in a phone list, a two-up tablet grid and a wide desktop row:
-   - 520px and wider (measured inside the padding): the photo beside the name, the
-     details and the link;
-   - 260-519px: the photo beside the name and details, the link across the bottom;
-   - under 260px: the photo on top.
-   The photo is an inset 4:5 box (the shape NCMEC's photos come in, 400x500), sized
-   from the card's width and never from the text. A long name or place makes the card
-   taller; it can't crop the face or push the photo over the details. */
+   - 560px and wider (measured inside the padding): the photo beside the name, the
+     details as label | value rows, and the link;
+   - 504-559px: the photo beside the name and details (label above value), the link
+     across the bottom;
+   - under 504px: the photo on top, everything else under it.
+   A long name or place only makes the card taller; it can't crop the face or push the
+   photo over the details. */
 .poster-results-card {
   container: child-card / inline-size;
   display: grid;
@@ -368,7 +371,7 @@
   display: block;
   grid-column: 1;
   grid-row: 1 / -1;
-  width: clamp(160px, 34cqi, 240px);
+  width: var(--child-card-photo-width);
   aspect-ratio: 4 / 5;
   overflow: hidden;
   padding: 0;
@@ -450,14 +453,12 @@
   margin-top: 18px;
 }
 
-/* 260-519px inside the padding (phones, two-up tablet rows): the photo is smaller and
-   the details stack, label over value, so a value never wraps a word at a time beside
-   its label. The body steps aside (display: contents) so the link runs under the photo. */
-@container child-card (width < 520px) {
+/* Under 560px: the link runs across the bottom of the card, under the photo. The body
+   steps aside (display: contents) so its parts can take their own grid rows. */
+@container child-card (width < 560px) {
   .poster-results-photo {
     grid-row: 1 / 3;
     align-self: start;
-    width: clamp(96px, 34cqi, 170px);
   }
 
   .poster-results-card-body:not(.skeleton-body) {
@@ -471,10 +472,23 @@
   }
 
   .poster-results-card-body dl {
-    display: block;
     grid-column: -2 / -1;
     grid-row: 2;
     align-self: start;
+  }
+
+  .poster-results-card-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}
+
+/* Each label above its value wherever the text column is too narrow for label | value,
+   so a value never wraps a word at a time beside its label: beside the photo at
+   504-559px, and on the narrowest phones once the text is under the photo. */
+@container child-card (504px <= width < 560px) or (width < 300px) {
+  .poster-results-card-body dl {
+    display: block;
   }
 
   .poster-results-card-body dd {
@@ -484,21 +498,25 @@
   .poster-results-card-body dd:last-child {
     margin-bottom: 0;
   }
-
-  .poster-results-card-actions {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
 }
 
-/* Under 260px (the narrowest phones): the photo goes on top at the card's full width,
-   still 4:5, with everything else under it. */
-@container child-card (width < 260px) {
+/* Under 504px there is no room for the text beside a full-size photo (240 + gap + a
+   240px column), so everything wraps under it. The photo keeps its size; only a card
+   narrower than the photo itself scales it down to fit. */
+@container child-card (width < 504px) {
   .poster-results-photo {
     grid-column: 1 / -1;
     grid-row: 1;
-    width: 100%;
+    width: min(var(--child-card-photo-width), 100%);
     margin-bottom: 16px;
+  }
+
+  /* Phones (one card per row): the photo is centred over the text. Two-up desktop rows
+     that also put the text under the photo keep it on the text's left edge. */
+  @media (width <= 900px) {
+    .poster-results-photo {
+      justify-self: center;
+    }
   }
 
   .poster-results-card .poster-results-card-body {

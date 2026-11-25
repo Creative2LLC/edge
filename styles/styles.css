@@ -137,6 +137,12 @@
   --child-card-name-size: 1.625rem; /* 26px */
   --child-card-text-size: 1.125rem; /* 18px */
 
+  /* The child's photo is the card's standout (client, 2026-11-25): one fixed size at every
+     width. When the text no longer fits beside it, the text wraps under the photo instead
+     of the photo shrinking. The cards' container queries assume this width; change them
+     with it. */
+  --child-card-photo-width: 240px;
+
   /* Per-level weight / leading. No level uses negative tracking. */
   --heading-weight: 700;
 
